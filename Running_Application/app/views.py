@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
 from django.db import connection
 from django.template.loader import get_template
+from .forms import RaceResultForm
 
 def login_view(request):
     if request.method == 'POST':
@@ -47,3 +48,28 @@ def race_results_view(request):
         'user_email': user_email,
         'race_results': race_results
     })
+
+def add_race_result_view(request):
+    user_id = request.session.get('user_id')
+    if not user_id:
+        return redirect('login')
+
+    if request.method == 'POST':
+        form = RaceResultForm(request.POST)
+        if form.is_valid():
+            event_id = form.cleaned_data['event_id']
+            weather_id = form.cleaned_data['weather_id']
+            result = form.cleaned_data['result']
+            place = form.cleaned_data['place']
+
+            with connection.cursor() as cursor:
+                cursor.execute("""
+                    INSERT INTO raceresult (athlete_id, event_id, weather_id, result, place)
+                    VALUES (%s, %s, %s, %s, %s)
+                """, [user_id, event_id, weather_id, result, place])
+
+            return redirect('race_results')
+    else:
+        form = RaceResultForm()
+
+    return render(request, 'app/add_race_result.html', {'form': form})

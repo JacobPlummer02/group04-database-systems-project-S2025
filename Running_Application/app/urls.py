@@ -22,4 +22,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('login/', views.login_view, name='login'),
     path('race_results/', views.race_results_view, name='race_results'),
+    path('add_race_result/', views.add_race_result_view, name='add_race_result'),
 ]

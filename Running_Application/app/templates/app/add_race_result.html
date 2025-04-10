@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html>
+{% block content %}
+  <h2>Add Race Result</h2>
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Add Result</button>
+  </form>
+  <a href="{% url 'race_results' %}">Back to Race Results</a>
+{% endblock %}
+</html>
