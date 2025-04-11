@@ -1,36 +1,91 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
     <title>Race Results</title>
     <style>
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f9fafb;
+            margin: 0;
+            padding: 40px;
+            color: #333;
         }
-        th, td {
-            padding: 8px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
-        }
-        th {
-            background-color: #f2f2f2;
-        }
-        tr:hover {
-            background-color: #f5f5f5;
-        }
+
         .header {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            margin-bottom: 30px;
         }
+
+        .header h1 {
+            font-size: 26px;
+            margin: 0;
+            color: #1a202c;
+        }
+
         .logout {
-            padding: 8px 16px;
-            background-color: #f44336;
+            padding: 10px 20px;
+            background-color: #e53e3e;
             color: white;
             border: none;
+            border-radius: 6px;
             cursor: pointer;
             text-decoration: none;
+            font-weight: bold;
+            transition: background-color 0.2s ease-in-out;
+        }
+
+        .logout:hover {
+            background-color: #c53030;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        th, td {
+            padding: 14px 16px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        th {
+            background-color: #edf2f7;
+            font-weight: bold;
+            color: #2d3748;
+        }
+
+        tr:hover {
+            background-color: #f7fafc;
+        }
+
+        .no-results {
+            font-style: italic;
+            color: #718096;
+            margin-top: 20px;
+        }
+
+        .add-link {
+            display: inline-block;
+            margin-top: 25px;
+            padding: 10px 20px;
+            background-color: #3182ce;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 500;
+            transition: background-color 0.2s ease-in-out;
+        }
+
+        .add-link:hover {
+            background-color: #2b6cb0;
         }
     </style>
 </head>
@@ -39,7 +94,7 @@
         <h1>Race Results for {{ user_email }}</h1>
         <a href="{% url 'login' %}" class="logout">Logout</a>
     </div>
-    
+
     {% if race_results %}
         <table>
             <thead>
@@ -62,8 +117,9 @@
             </tbody>
         </table>
     {% else %}
-        <p>No race results found.</p>
+        <p class="no-results">No race results found.</p>
     {% endif %}
+
+    <a href="{% url 'add_race_result' %}" class="add-link">➕ Add New Race Result</a>
 </body>
-<a href="{% url 'add_race_result' %}">Add New Race Result</a>
 </html>
