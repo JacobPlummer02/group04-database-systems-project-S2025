@@ -1,2 +1,3 @@
 # .gitignore
 .env
+Running_Application\app\__pycache__

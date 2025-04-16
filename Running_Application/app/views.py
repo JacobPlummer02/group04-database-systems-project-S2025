@@ -16,7 +16,8 @@ def login_view(request):
         if user:
             # If user exists, redirect to the "Race Results" page
             request.session['user_id'] = user[0]
-            return redirect('race_results')
+            request.session['user_role'] = user[1]
+            return redirect('dashboard')
         else:
             # If user doesn't exist, show an error message
             return render(request, 'app/login.html', {'error': 'Invalid email or password'})
@@ -73,3 +74,26 @@ def add_race_result_view(request):
         form = RaceResultForm()
 
     return render(request, 'app/add_race_result.html', {'form': form})
+
+def dashboard_view(request):
+    user_id = request.session.get('user_id')
+    if not user_id:
+        return redirect('login')
+    with connection.cursor() as cursor:
+        cursor.execute("""
+                    SELECT email, role
+                    FROM users
+                    WHERE user_id = %s
+                """, [user_id])
+        user = cursor.fetchone()
+                       
+    if not user:
+            return redirect('login')
+    
+    user_email = user[0]
+    user_role = user[1]
+
+    return render (request, 'app/dashboard.html', {
+        'user_email': user_email,
+        'user_role': user_role,
+    })
