@@ -23,6 +23,40 @@ def login_view(request):
         
     return render(request, 'app/login.html')
 
+def create_new_user_view(request):
+    if request.method == 'POST':
+        first_name = request.POST.get('first_name')
+        last_name = request.POST.get('last_name')
+        email = request.POST.get('email')
+        dob = request.POST.get('dob')
+        gender = request.POST.get('gender')
+        password = request.POST.get('password')
+        confirm_password = request.POST.get('confirm_password')
+        phone = request.POST.get('phone')
+        role = request.POST.get('role')
+        role= role.title()
+
+        if password != confirm_password:
+            return render(request, 'app/create_new_user.html', {'error': 'Passwords do not match'})
+
+        # Check if user already exists
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT * FROM users WHERE email = %s", [email])
+            user = cursor.fetchone()
+
+        if user:
+            # If user exists, show an error message
+            return render(request, 'app/create_new_user.html', {'error': 'User already exists'})
+        else:
+            # If user doesn't exist, create a new user
+            with connection.cursor() as cursor:
+                cursor.execute("""
+                    INSERT INTO users (first_name, last_name, dob, gender, email, password_hash, phone, role)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+                """, [first_name, last_name, dob, gender, email, password, phone, role])
+            return redirect('login')
+    return render(request, 'app/create_new_user.html')
+
 def race_results_view(request):
     # Check if user is logged in
     user_id = request.session.get('user_id')
@@ -73,3 +107,4 @@ def add_race_result_view(request):
         form = RaceResultForm()
 
     return render(request, 'app/add_race_result.html', {'form': form})
+

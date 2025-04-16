@@ -19,17 +19,18 @@
             border-radius: 12px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
             width: 300px;
+            text-align: center;
         }
         .login-container h1 {
             margin-bottom: 20px;
             font-size: 24px;
             color: #333;
-            text-align: center;
         }
         .login-container label {
             font-weight: bold;
             display: block;
             margin-bottom: 6px;
+            text-align: left;
         }
         .login-container input {
             width: 100%;
@@ -55,7 +56,16 @@
         .error-message {
             color: red;
             margin-bottom: 15px;
-            text-align: center;
+        }
+        .create-user-link {
+            display: block;
+            margin-top: 15px;
+            font-size: 14px;
+            color: #4a90e2;
+            text-decoration: none;
+        }
+        .create-user-link:hover {
+            text-decoration: underline;
         }
     </style>
 </head>
@@ -73,9 +83,9 @@
             <label>Password</label>
             <input type="password" name="password" required>
 
-            
             <button type="submit">Login</button>
         </form>
+        <a href="{% url 'create_new_user' %}" class="create-user-link">Create New User</a>
     </div>
 </body>
 </html>
