@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Team Management</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logout {
+            padding: 8px 16px;
+            background-color: #f44336;
+            color: white;
+            border: none;
+            cursor: pointer;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Team Management for {{ user_email }}</h1>
+        <a href="{% url 'login' %}" class="logout">Logout</a>
+    </div>
+    
+    {% if team_members %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Last Name</th>
+                    <th>First Name</th>
+                    <th>gender</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for athlete in team_members %}
+                <tr>
+                    <td>{{ athlete.last_name }}</td>
+                    <td>{{ athlete.first_name }}</td>
+                    <td>{{ athlete.gender }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No Team Found.</p>
+    {% endif %}
+</body>
+<a href="#">Add New Athlete</a>
+</html>
