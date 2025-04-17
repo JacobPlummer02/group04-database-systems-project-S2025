@@ -2,8 +2,8 @@ from django import forms
 import re
 
 class RaceResultForm(forms.Form):
-    event_id = forms.IntegerField(label='Event ID')
-    weather_id = forms.IntegerField(label='Weather ID')
+    event_id = forms.ChoiceField(label='Event')
+    weather_id = forms.ChoiceField(label='Weather')
     result = forms.CharField(
         label='Result Time (MM:SS.DD)',
         max_length=10,

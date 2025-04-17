@@ -96,6 +96,14 @@ def add_race_result_view(request):
     user_id = request.session.get('user_id')
     if not user_id:
         return redirect('login')
+    
+    with connection.cursor() as cursor:
+        cursor.execute("SELECT e.event_id, e.event_name, e.meet_id, m.meet_name " \
+                        "FROM event as e JOIN meet as m " \
+                        "ON e.meet_id = m.meet_id")
+        events = cursor.fetchall() # (id, name, meet_id, meet_name)
+        cursor.execute("SELECT weather_id, temp_f, wind_mph, conditions FROM weatherconditions")
+        weather = cursor.fetchall() # (id, temp_f, wind_mph, conditions)
 
     if request.method == 'POST':
         form = RaceResultForm(request.POST)
@@ -114,6 +122,16 @@ def add_race_result_view(request):
             return redirect('race_results')
     else:
         form = RaceResultForm()
+        form.fields['event_id'].choices = [
+            (event[0], f"{event[1]} ({event[3]})") for event in events
+        ]
+        form.fields['weather_id'].choices = [
+            (weather[0], f"{weather[1]}°F, {weather[2]} mph, {weather[3]}") for weather in weather
+        ]
 
-    return render(request, 'app/add_race_result.html', {'form': form})
+    return render(request, 'app/add_race_result.html', {
+        'form': form,
+        'events': events,
+        'weather': weather
+    })
 
