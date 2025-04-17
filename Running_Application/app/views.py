@@ -24,6 +24,11 @@ def login_view(request):
     return render(request, 'app/login.html')
 
 def create_new_user_view(request):
+    # Get all team id's and names
+    with connection.cursor() as cursor:
+        cursor.execute("SELECT team_id, team_name FROM team")
+        teams = cursor.fetchall()  # (id, name)
+
     if request.method == 'POST':
         first_name = request.POST.get('first_name')
         last_name = request.POST.get('last_name')
@@ -46,8 +51,11 @@ def create_new_user_view(request):
             user = cursor.fetchone()
 
         if user:
-            # If user exists, show an error message
-            return render(request, 'app/create_new_user.html', {'error': 'User already exists'})
+            # If user exists, show error message
+            return render(request, 'app/create_new_user.html', {
+                'error': 'User already exists',
+                'teams': teams
+            })
         else:
             # If user doesn't exist, create a new user
             with connection.cursor() as cursor:
@@ -56,7 +64,7 @@ def create_new_user_view(request):
                     VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
                 """, [first_name, last_name, dob, gender, email, password, phone, role, team_id])
             return redirect('login')
-    return render(request, 'app/create_new_user.html')
+    return render(request, 'app/create_new_user.html', {'teams': teams})
 
 def race_results_view(request):
     # Check if user is logged in
