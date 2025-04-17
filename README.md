@@ -20,6 +20,7 @@ HOST_NAME = 'bastion.cs.virginia.edu'
 - Apply database migrations by running ```python manage.py migrate```
 - Run the developmental server with ```python manage.py runserver```
 - You should be provided with a url in the terminal, copy that link and append ```/login``` to visit the login page
-- Currently (in the beta version) there is no option to create a new account, so log in with the sample user:\
+- ***(4/16): Option to create user added**
+- (*Deprecated*) In the beta version, there is no option to create a new user, so log in with the sample user:\
 Username: heldi.valikaj@example.com\
 Password: hashed_password
