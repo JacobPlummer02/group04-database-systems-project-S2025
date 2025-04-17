@@ -34,7 +34,8 @@ def create_new_user_view(request):
         confirm_password = request.POST.get('confirm_password')
         phone = request.POST.get('phone')
         role = request.POST.get('role')
-        role= role.title()
+        role = role.title()
+        team_id = request.POST.get('team_id')
 
         if password != confirm_password:
             return render(request, 'app/create_new_user.html', {'error': 'Passwords do not match'})
@@ -51,9 +52,9 @@ def create_new_user_view(request):
             # If user doesn't exist, create a new user
             with connection.cursor() as cursor:
                 cursor.execute("""
-                    INSERT INTO users (first_name, last_name, dob, gender, email, password_hash, phone, role)
-                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
-                """, [first_name, last_name, dob, gender, email, password, phone, role])
+                    INSERT INTO users (first_name, last_name, dob, gender, email, password_hash, phone, role, team_id)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+                """, [first_name, last_name, dob, gender, email, password, phone, role, team_id])
             return redirect('login')
     return render(request, 'app/create_new_user.html')
 
