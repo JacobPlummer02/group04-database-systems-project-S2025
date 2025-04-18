@@ -2,6 +2,8 @@ from django.shortcuts import render, redirect
 from django.db import connection
 from django.template.loader import get_template
 from .forms import RaceResultForm
+from .forms import TrainingLogForm
+
 
 def login_view(request):
     if request.method == 'POST':
@@ -134,4 +136,44 @@ def add_race_result_view(request):
         'events': events,
         'weather': weather
     })
+def training_log_view(request):
+    # ensure the user is logged in
+    user_id = request.session.get('user_id')
+    if not user_id:
+        return redirect('login')
+
+    # handle form submission
+    if request.method == 'POST':
+        form = TrainingLogForm(request.POST)
+        if form.is_valid():
+            date         = form.cleaned_data['date']
+            workout_type = form.cleaned_data['workout_type']
+            duration     = form.cleaned_data['duration'] or None
+            distance     = form.cleaned_data['distance_miles']
+            with connection.cursor() as cursor:
+                cursor.execute("""
+                    INSERT INTO traininglog
+                      (athlete_id, date, workout_type, duration, distance_miles)
+                    VALUES (%s, %s, %s, %s, %s)
+                """, [user_id, date, workout_type, duration, distance])
+            return redirect('training_log')
+    else:
+        form = TrainingLogForm()
+
+    # fetch existing logs
+    with connection.cursor() as cursor:
+        cursor.execute("""
+            SELECT log_id, date, workout_type, duration, distance_miles
+            FROM traininglog
+            WHERE athlete_id = %s
+            ORDER BY date DESC
+        """, [user_id])
+        cols = [c[0] for c in cursor.description]
+        logs = [dict(zip(cols, row)) for row in cursor.fetchall()]
+
+    return render(request, 'app/training_log.html', {
+        'form': form,
+        'logs': logs,
+    })
+
 
