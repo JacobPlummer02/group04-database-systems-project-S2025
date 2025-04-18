@@ -16,3 +16,23 @@ class RaceResultForm(forms.Form):
         if not re.match(pattern, result):
             raise forms.ValidationError("Enter result as MM:SS.DD")
         return result
+    
+class TrainingLogForm(forms.Form):
+    date = forms.DateField(
+        label='Date',
+        widget=forms.DateInput(attrs={'type': 'date'})
+    )
+    workout_type = forms.CharField(
+        label='Workout Type',
+        max_length=50
+    )
+    duration = forms.CharField(
+        label='Duration (HH:MM:SS)',
+        max_length=8,
+        required=False,
+        help_text='Leave blank if not applicable'
+    )
+    distance_miles = forms.IntegerField(
+        label='Distance (miles)',
+        min_value=0
+    )
