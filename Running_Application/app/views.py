@@ -3,6 +3,7 @@ from django.db import connection
 from django.template.loader import get_template
 from .forms import RaceResultForm
 from .forms import TrainingLogForm
+from datetime import datetime
 
 
 def login_view(request):
@@ -75,30 +76,60 @@ def race_results_view(request):
     if not user_id:
         return redirect('login')
     
-    # Get user's race results
+    # Initialize filter variables
+    event_filter = request.GET.get('event', '')
+    start_date = request.GET.get('start_date', '')
+    end_date = request.GET.get('end_date', '')
+    
+    
+    query = """
+        SELECT 
+            e.event_name, 
+            m.meet_date,
+            r.result, 
+            r.place
+        FROM RaceResult r
+        JOIN Event e ON r.event_id = e.event_id
+        JOIN Meet m ON e.meet_id = m.meet_id
+        WHERE r.athlete_id = %s
+    """
+    params = [user_id]
+
+    
+    if event_filter:
+        query += " AND e.event_name LIKE %s"
+        params.append(f"%{event_filter}%")  
+    
+    if start_date and end_date:
+        #parse start and end date
+        try:
+            start_date = datetime.strptime(start_date, '%Y-%m-%d')
+            end_date = datetime.strptime(end_date, '%Y-%m-%d')
+            query += " AND m.meet_date BETWEEN %s AND %s"
+            params.extend([start_date, end_date])
+        except ValueError:
+            # handle invalid format
+            return render(request, 'app/race_results.html', {
+                'error': 'Invalid date format. Please use YYYY-MM-DD.',
+            })
+    
+   
     with connection.cursor() as cursor:
-        cursor.execute("""
-            SELECT 
-                e.event_name, 
-                m.meet_date, 
-                r.result, 
-                r.place
-            FROM RaceResult r
-            JOIN Event e ON r.event_id = e.event_id
-            JOIN Meet m ON e.meet_id = m.meet_id  
-            WHERE r.athlete_id = %s
-        """, [user_id])
+        cursor.execute(query, params)
         
         # Convert query results to a list of dictionaries
         columns = [col[0] for col in cursor.description]
         race_results = [dict(zip(columns, row)) for row in cursor.fetchall()]
     
-    # Get user's email for display
+    #get user's email for display
     user_email = request.session.get('user_email', 'User')
     
     return render(request, 'app/race_results.html', {
         'user_email': user_email,
-        'race_results': race_results
+        'race_results': race_results,
+        'event_filter': event_filter,
+        'start_date': start_date if start_date else '',
+        'end_date': end_date if end_date else '',
     })
 
 def add_race_result_view(request):

@@ -41,6 +41,36 @@
             background-color: #c53030;
         }
 
+        .filter-form {
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .filter-form label {
+            margin-right: 10px;
+            font-weight: bold;
+        }
+
+        .filter-form input, .filter-form button {
+            padding: 8px 12px;
+            margin-right: 10px;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+        }
+
+        .filter-form button {
+            background-color: #3182ce;
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .filter-form button:hover {
+            background-color: #2b6cb0;
+        }
+
         table {
             width: 100%;
             border-collapse: collapse;
@@ -94,6 +124,23 @@
         <h1>Race Results for {{ user_email }}</h1>
         <a href="{% url 'login' %}" class="logout">Logout</a>
     </div>
+
+    <!-- Filter Form -->
+    <form method="get" class="filter-form">
+        <div>
+            <label for="event">Event Name:</label>
+            <input type="text" id="event" name="event" value="{{ event_filter }}" placeholder="Filter by event name">
+        </div>
+        <div>
+            <label for="start_date">Start Date:</label>
+            <input type="date" id="start_date" name="start_date" value="{{ start_date }}">
+        </div>
+        <div>
+            <label for="end_date">End Date:</label>
+            <input type="date" id="end_date" name="end_date" value="{{ end_date }}">
+        </div>
+        <button type="submit">Filter</button>
+    </form>
 
     {% if race_results %}
     <table>
