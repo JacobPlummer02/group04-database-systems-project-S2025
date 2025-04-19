@@ -79,13 +79,14 @@ def race_results_view(request):
     with connection.cursor() as cursor:
         cursor.execute("""
             SELECT 
-        e.event_name, 
-        r.result, 
-        r.place, 
-        r.result_id
-    FROM RaceResult r
-    JOIN Event e ON r.event_id = e.event_id
-    WHERE r.athlete_id = %s
+                e.event_name, 
+                m.meet_date, 
+                r.result, 
+                r.place
+            FROM RaceResult r
+            JOIN Event e ON r.event_id = e.event_id
+            JOIN Meet m ON e.meet_id = m.meet_id  
+            WHERE r.athlete_id = %s
         """, [user_id])
         
         # Convert query results to a list of dictionaries

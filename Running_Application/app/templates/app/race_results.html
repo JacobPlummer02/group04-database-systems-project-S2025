@@ -98,20 +98,20 @@
     {% if race_results %}
     <table>
         <tr>
-          <th>Event Name</th>
-          <th>Result</th>
-          <th>Place</th>
-          <th>Result ID</th>
+            <th>Event Name</th>
+            <th>Event Date</th>  
+            <th>Result</th>
+            <th>Place</th>
         </tr>
-        {% for row in race_results %}
+        {% for result in race_results %}
         <tr>
-          <td>{{ row.event_name }}</td>
-          <td>{{ row.result }}</td>
-          <td>{{ row.place }}</td>
-          <td>{{ row.result_id }}</td>
+            <td>{{ result.event_name }}</td>
+            <td>{{ result.meet_date }}</td> 
+            <td>{{ result.result }}</td>
+            <td>{{ result.place }}</td>
         </tr>
         {% endfor %}
-      </table>
+    </table>
     {% else %}
         <p class="no-results">No race results found.</p>
     {% endif %}
