@@ -18,6 +18,7 @@ def login_view(request):
         if user:
             # If user exists, redirect to the "Race Results" page
             request.session['user_id'] = user[0]
+            request.session['user_email'] = user[6]
             return redirect('race_results')
         else:
             # If user doesn't exist, show an error message
@@ -77,9 +78,14 @@ def race_results_view(request):
     # Get user's race results
     with connection.cursor() as cursor:
         cursor.execute("""
-            SELECT result_id, athlete_id, event_id, weather_id, result, place 
-            FROM raceresult
-            WHERE athlete_id = %s
+            SELECT 
+        e.event_name, 
+        r.result, 
+        r.place, 
+        r.result_id
+    FROM RaceResult r
+    JOIN Event e ON r.event_id = e.event_id
+    WHERE r.athlete_id = %s
         """, [user_id])
         
         # Convert query results to a list of dictionaries
