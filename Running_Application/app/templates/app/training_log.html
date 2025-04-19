@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Training Log</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f9fafb;
+      margin: 0;
+      padding: 40px;
+      color: #333;
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+    }
+    .header h1 {
+      margin: 0;
+      font-size: 26px;
+      color: #1a202c;
+    }
+    .logout {
+      padding: 8px 16px;
+      background-color: #e53e3e;
+      color: #fff;
+      text-decoration: none;
+      border-radius: 4px;
+    }
+    .form-container, .table-container {
+      background: #fff;
+      padding: 20px 24px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      margin-bottom: 30px;
+    }
+    form p {
+      margin-bottom: 12px;
+    }
+    label {
+      font-weight: bold;
+      display: block;
+      margin-bottom: 6px;
+    }
+    input, button {
+      width: 100%;
+      padding: 8px;
+      box-sizing: border-box;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+    }
+    button {
+      margin-top: 12px;
+      background-color: #3182ce;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th, td {
+      padding: 12px 8px;
+      border-bottom: 1px solid #eee;
+      text-align: left;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>Your Training Log</h1>
+    <a href="{% url 'login' %}" class="logout">Logout</a>
+  </div>
+
+  <div class="form-container">
+    <h2>Add New Entry</h2>
+    <form method="post">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <button type="submit">Add Log</button>
+    </form>
+  </div>
+
+  <div class="table-container">
+    {% if logs %}
+      <table>
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Workout</th>
+            <th>Duration</th>
+            <th>Distance (mi)</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for log in logs %}
+          <tr>
+            <td>{{ log.date }}</td>
+            <td>{{ log.workout_type }}</td>
+            <td>{{ log.duration }}</td>
+            <td>{{ log.distance_miles }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <p>No training logs yet.</p>
+    {% endif %}
+  </div>
+</body>
+</html>

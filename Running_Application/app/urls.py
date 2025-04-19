@@ -24,4 +24,5 @@ urlpatterns = [
     path('create_new_user/', views.create_new_user_view, name='create_new_user'),
     path('race_results/', views.race_results_view, name='race_results'),
     path('add_race_result/', views.add_race_result_view, name='add_race_result'),
+    path('training_log/', views.training_log_view, name='training_log'),
 ]
