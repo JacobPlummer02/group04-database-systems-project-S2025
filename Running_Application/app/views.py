@@ -149,35 +149,34 @@ def add_race_result_view(request):
         cursor.execute("SELECT weather_id, temp_f, wind_mph, conditions FROM weatherconditions")
         weather = cursor.fetchall() # (id, temp_f, wind_mph, conditions)
 
-    if request.method == 'POST':
-        form = RaceResultForm(request.POST)
-        if form.is_valid():
-            event_id = form.cleaned_data['event_id']
-            weather_id = form.cleaned_data['weather_id']
-            result = form.cleaned_data['result']
-            place = form.cleaned_data['place']
+    form = RaceResultForm(request.POST if request.method == 'POST' else None)
+    form.fields['event_id'].choices = [
+        (event[0], f"{event[1]} ({event[3]})") for event in events
+    ]
+    form.fields['weather_id'].choices = [
+        (weather[0], f"{weather[1]}°F, {weather[2]} mph, {weather[3]}") for weather in weather
+    ]
 
-            with connection.cursor() as cursor:
-                cursor.execute("""
-                    INSERT INTO raceresult (athlete_id, event_id, weather_id, result, place)
-                    VALUES (%s, %s, %s, %s, %s)
-                """, [user_id, event_id, weather_id, result, place])
+    if request.method == 'POST' and form.is_valid():
+        event_id = form.cleaned_data['event_id']
+        weather_id = form.cleaned_data['weather_id']
+        result = form.cleaned_data['result']
+        place = form.cleaned_data['place']
 
-            return redirect('race_results')
-    else:
-        form = RaceResultForm()
-        form.fields['event_id'].choices = [
-            (event[0], f"{event[1]} ({event[3]})") for event in events
-        ]
-        form.fields['weather_id'].choices = [
-            (weather[0], f"{weather[1]}°F, {weather[2]} mph, {weather[3]}") for weather in weather
-        ]
+        with connection.cursor() as cursor:
+            cursor.execute("""
+                INSERT INTO raceresult (athlete_id, event_id, weather_id, result, place)
+                VALUES (%s, %s, %s, %s, %s)
+            """, [user_id, event_id, weather_id, result, place])
+
+        return redirect('race_results')
 
     return render(request, 'app/add_race_result.html', {
         'form': form,
         'events': events,
         'weather': weather
     })
+
 def training_log_view(request):
     # ensure the user is logged in
     user_id = request.session.get('user_id')
