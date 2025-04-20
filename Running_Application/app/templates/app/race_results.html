@@ -1,168 +1,199 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Race Results</title>
-    <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f9fafb;
-            margin: 0;
-            padding: 40px;
-            color: #333;
-        }
+  <meta charset="UTF-8" />
+  <title>Race Results</title>
+  <style>
+    :root {
+      --primary: #3b82f6;
+      --primary-hover: #2563eb;
+      --accent: #f43f5e;
+      --accent-hover: #e11d48;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text-main: #1e293b;
+      --text-sub: #64748b;
+    }
 
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-        }
+    * {
+      box-sizing: border-box;
+    }
 
-        .header h1 {
-            font-size: 26px;
-            margin: 0;
-            color: #1a202c;
-        }
+    body {
+      margin: 0;
+      padding: 40px;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: var(--bg);
+      color: var(--text-main);
+    }
 
-        .logout {
-            padding: 10px 20px;
-            background-color: #e53e3e;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            text-decoration: none;
-            font-weight: bold;
-            transition: background-color 0.2s ease-in-out;
-        }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 40px;
+    }
 
-        .logout:hover {
-            background-color: #c53030;
-        }
+    .header h1 {
+      font-size: 28px;
+      font-weight: 600;
+    }
 
-        .filter-form {
-            margin-bottom: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
+    .logout {
+      background-color: var(--accent);
+      color: white;
+      padding: 10px 18px;
+      border-radius: 8px;
+      border: none;
+      text-decoration: none;
+      font-weight: 500;
+      transition: background-color 0.2s;
+    }
 
-        .filter-form label {
-            margin-right: 10px;
-            font-weight: bold;
-        }
+    .logout:hover {
+      background-color: var(--accent-hover);
+    }
 
-        .filter-form input, .filter-form button {
-            padding: 8px 12px;
-            margin-right: 10px;
-            border-radius: 6px;
-            border: 1px solid #ddd;
-        }
+    .filter-form {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      margin-bottom: 30px;
+      background-color: var(--card-bg);
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+    }
 
-        .filter-form button {
-            background-color: #3182ce;
-            color: white;
-            cursor: pointer;
-            font-weight: bold;
-        }
+    .filter-form label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 4px;
+      color: var(--text-sub);
+    }
 
-        .filter-form button:hover {
-            background-color: #2b6cb0;
-        }
+    .filter-form div {
+      flex: 1;
+      min-width: 200px;
+    }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            background-color: white;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-        }
+    .filter-form input, .filter-form button {
+      width: 100%;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #e2e8f0;
+    }
 
-        th, td {
-            padding: 14px 16px;
-            text-align: left;
-            border-bottom: 1px solid #eee;
-        }
+    .filter-form button {
+      background-color: var(--primary);
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.2s;
+      margin-top: 26px;
+    }
 
-        th {
-            background-color: #edf2f7;
-            font-weight: bold;
-            color: #2d3748;
-        }
+    .filter-form button:hover {
+      background-color: var(--primary-hover);
+    }
 
-        tr:hover {
-            background-color: #f7fafc;
-        }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background-color: var(--card-bg);
+      border-radius: 12px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+      overflow: hidden;
+    }
 
-        .no-results {
-            font-style: italic;
-            color: #718096;
-            margin-top: 20px;
-        }
+    th, td {
+      padding: 16px 20px;
+      text-align: left;
+    }
 
-        .add-link {
-            display: inline-block;
-            margin-top: 25px;
-            padding: 10px 20px;
-            background-color: #3182ce;
-            color: white;
-            text-decoration: none;
-            border-radius: 6px;
-            font-weight: 500;
-            transition: background-color 0.2s ease-in-out;
-        }
+    th {
+      background-color: #f1f5f9;
+      font-weight: 600;
+      color: var(--text-sub);
+    }
 
-        .add-link:hover {
-            background-color: #2b6cb0;
-        }
-    </style>
+    tr:not(:last-child) td {
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    tr:hover {
+      background-color: #f9fafb;
+    }
+
+    .no-results {
+      font-style: italic;
+      color: var(--text-sub);
+      margin-top: 20px;
+      text-align: center;
+    }
+
+    .add-link {
+      display: inline-block;
+      margin-top: 30px;
+      padding: 12px 24px;
+      background-color: var(--primary);
+      color: white;
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: 600;
+      transition: background-color 0.2s ease;
+    }
+
+    .add-link:hover {
+      background-color: var(--primary-hover);
+    }
+  </style>
 </head>
 <body>
-    <div class="header">
-        <h1>Race Results for {{ user_email }}</h1>
-        <a href="{% url 'login' %}" class="logout">Logout</a>
+  <div class="header">
+    <h1>Race Results for {{ user_email }}</h1>
+    <a href="{% url 'login' %}" class="logout">Logout</a>
+  </div>
+
+  <form method="get" class="filter-form">
+    <div>
+      <label for="event">Event Name</label>
+      <input type="text" id="event" name="event" value="{{ event_filter }}" placeholder="e.g. 100m, Marathon..." />
     </div>
+    <div>
+      <label for="start_date">Start Date</label>
+      <input type="date" id="start_date" name="start_date" value="{{ start_date }}" />
+    </div>
+    <div>
+      <label for="end_date">End Date</label>
+      <input type="date" id="end_date" name="end_date" value="{{ end_date }}" />
+    </div>
+    <div>
+      <button type="submit">Apply Filter</button>
+    </div>
+  </form>
 
-    <!-- Filter Form -->
-    <form method="get" class="filter-form">
-        <div>
-            <label for="event">Event Name:</label>
-            <input type="text" id="event" name="event" value="{{ event_filter }}" placeholder="Filter by event name">
-        </div>
-        <div>
-            <label for="start_date">Start Date:</label>
-            <input type="date" id="start_date" name="start_date" value="{{ start_date }}">
-        </div>
-        <div>
-            <label for="end_date">End Date:</label>
-            <input type="date" id="end_date" name="end_date" value="{{ end_date }}">
-        </div>
-        <button type="submit">Filter</button>
-    </form>
+  {% if race_results %}
+  <table>
+    <tr>
+      <th>Event Name</th>
+      <th>Event Date</th>
+      <th>Result</th>
+      <th>Place</th>
+    </tr>
+    {% for result in race_results %}
+    <tr>
+      <td>{{ result.event_name }}</td>
+      <td>{{ result.meet_date }}</td>
+      <td>{{ result.result }}</td>
+      <td>{{ result.place }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+  {% else %}
+    <p class="no-results">No race results found.</p>
+  {% endif %}
 
-    {% if race_results %}
-    <table>
-        <tr>
-            <th>Event Name</th>
-            <th>Event Date</th>  
-            <th>Result</th>
-            <th>Place</th>
-        </tr>
-        {% for result in race_results %}
-        <tr>
-            <td>{{ result.event_name }}</td>
-            <td>{{ result.meet_date }}</td> 
-            <td>{{ result.result }}</td>
-            <td>{{ result.place }}</td>
-        </tr>
-        {% endfor %}
-    </table>
-    {% else %}
-        <p class="no-results">No race results found.</p>
-    {% endif %}
-
-    <a href="{% url 'add_race_result' %}" class="add-link">➕ Add New Race Result</a>
+  <a href="{% url 'add_race_result' %}" class="add-link">➕ Add New Race Result</a>
 </body>
 </html>

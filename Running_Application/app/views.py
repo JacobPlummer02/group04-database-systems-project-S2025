@@ -75,16 +75,15 @@ def create_new_user_view(request):
     return render(request, 'app/create_new_user.html', {'teams': teams})
 
 def race_results_view(request):
-    # Check if user is logged in
+    #check if user is logged in
     user_id = request.session.get('user_id')
     if not user_id:
         return redirect('login')
     
-    # Initialize filter variables
+    
     event_filter = request.GET.get('event', '')
     start_date = request.GET.get('start_date', '')
     end_date = request.GET.get('end_date', '')
-    
     
     query = """
         SELECT 
@@ -99,25 +98,24 @@ def race_results_view(request):
     """
     params = [user_id]
 
-    
     if event_filter:
-        query += " AND e.event_name LIKE %s"
-        params.append(f"%{event_filter}%")  
+        # case insensitive
+        query += " AND LOWER(e.event_name) LIKE LOWER(%s)"
+        params.append(f"%{event_filter}%")
     
     if start_date and end_date:
-        #parse start and end date
+      
         try:
             start_date = datetime.strptime(start_date, '%Y-%m-%d')
             end_date = datetime.strptime(end_date, '%Y-%m-%d')
             query += " AND m.meet_date BETWEEN %s AND %s"
             params.extend([start_date, end_date])
         except ValueError:
-            # handle invalid format
+            # invalid format
             return render(request, 'app/race_results.html', {
                 'error': 'Invalid date format. Please use YYYY-MM-DD.',
             })
     
-   
     with connection.cursor() as cursor:
         cursor.execute(query, params)
         
@@ -125,7 +123,7 @@ def race_results_view(request):
         columns = [col[0] for col in cursor.description]
         race_results = [dict(zip(columns, row)) for row in cursor.fetchall()]
     
-    #get user's email for display
+    # get users email
     user_email = request.session.get('user_email', 'User')
     
     return render(request, 'app/race_results.html', {
@@ -135,6 +133,7 @@ def race_results_view(request):
         'start_date': start_date if start_date else '',
         'end_date': end_date if end_date else '',
     })
+
 
 def add_race_result_view(request):
     user_id = request.session.get('user_id')
