@@ -280,3 +280,40 @@ def team_management_view(request):
         'user_email': request.session.get('user_email'),
         'team_members': team_members,
     })
+
+
+
+def my_team_view(request):
+    # check user login
+    user_id = request.session.get('user_id')
+    if not user_id:
+        return redirect('login')
+    
+    # query to get the athlete's team members
+    query = """
+        SELECT 
+            u.user_id, 
+            u.first_name, 
+            u.last_name, 
+            u.email, 
+            u.phone, 
+            u.dob, 
+            u.gender
+        FROM Users u
+        JOIN Team t ON u.team_id = t.team_id
+        JOIN Users team_member ON team_member.team_id = t.team_id
+        WHERE team_member.user_id = %s
+    """
+    
+    with connection.cursor() as cursor:
+        cursor.execute(query, [user_id])
+        columns = [col[0] for col in cursor.description]
+        team_members = [dict(zip(columns, row)) for row in cursor.fetchall()]
+    
+    # Get the user email (from session)
+    user_email = request.session.get('user_email', 'User')
+    
+    return render(request, 'app/my_team.html', {
+        'user_email': user_email,
+        'team_members': team_members,
+    })
