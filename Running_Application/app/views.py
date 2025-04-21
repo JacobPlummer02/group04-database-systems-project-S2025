@@ -218,8 +218,6 @@ def training_log_view(request):
         'logs': logs,
     })
 
-    return render(request, 'app/add_race_result.html', {'form': form})
-
 def dashboard_view(request):
     user_id = request.session.get('user_id')
     team_id = request.session.get('team_id')
