@@ -1,67 +1,192 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Team Management</title>
-    <style>
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-        th, td {
-            padding: 8px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
-        }
-        th {
-            background-color: #f2f2f2;
-        }
-        tr:hover {
-            background-color: #f5f5f5;
-        }
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .logout {
-            padding: 8px 16px;
-            background-color: #f44336;
-            color: white;
-            border: none;
-            cursor: pointer;
-            text-decoration: none;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Team Management</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    :root {
+      --primary: #007bff;
+      --danger: #dc3545;
+      --bg-light: #f5f7fa;
+      --bg-dark: #1a1a1a;
+      --card-light: #ffffff;
+      --card-dark: #2a2a2a;
+      --text-light: #333;
+      --text-dark: #f1f1f1;
+      --muted-light: #6c757d;
+      --muted-dark: #999;
+      --shadow: rgba(0, 0, 0, 0.1);
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: var(--bg-light);
+      color: var(--text-light);
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+    body.dark-mode {
+      background-color: var(--bg-dark);
+      color: var(--text-dark);
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: auto;
+      padding: 40px 20px;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+      border-bottom: 1px solid #e0e0e0;
+      padding-bottom: 20px;
+    }
+
+    .header h1 {
+      font-size: 24px;
+    }
+
+    .logout {
+      background-color: var(--danger);
+      color: white;
+      padding: 10px 20px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 600;
+      transition: background-color 0.2s ease;
+    }
+
+    .logout:hover {
+      background-color: #b02a37;
+    }
+
+    .toggle-dark {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: inherit;
+      margin-left: 15px;
+    }
+
+    h2 {
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 25px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background-color: var(--card-light);
+      border-radius: 12px;
+      box-shadow: 0 4px 12px var(--shadow);
+      overflow: hidden;
+      transition: background-color 0.3s;
+    }
+
+    body.dark-mode table {
+      background-color: var(--card-dark);
+    }
+
+    th, td {
+      padding: 16px;
+      text-align: left;
+    }
+
+    th {
+      background-color: #f0f0f0;
+      font-weight: 600;
+      font-size: 15px;
+    }
+
+    body.dark-mode th {
+      background-color: #333;
+      color: var(--text-dark);
+    }
+
+    tr:nth-child(even) {
+      background-color: #fafafa;
+    }
+
+    body.dark-mode tr:nth-child(even) {
+      background-color: #222;
+    }
+
+    tr:hover {
+      background-color: #eef2f7;
+    }
+
+    body.dark-mode tr:hover {
+      background-color: #2d2d2d;
+    }
+
+    .add-athlete {
+      display: inline-block;
+      margin-top: 20px;
+      text-decoration: none;
+      font-weight: 600;
+      color: var(--primary);
+      font-size: 16px;
+    }
+
+    .add-athlete:hover {
+      text-decoration: underline;
+    }
+  </style>
 </head>
 <body>
+  <div class="container">
     <div class="header">
-        <h1>Team Management for {{ user_email }}</h1>
+      <h1>Team Management for {{ user_email }}</h1>
+      <div>
+        <button class="toggle-dark" onclick="toggleDarkMode()" title="Toggle Dark Mode">
+          <i data-lucide="moon" id="dark-icon"></i>
+        </button>
         <a href="{% url 'login' %}" class="logout">Logout</a>
+      </div>
     </div>
-    
+
     {% if team_members %}
-        <table>
-            <thead>
-                <tr>
-                    <th>Last Name</th>
-                    <th>First Name</th>
-                    <th>gender</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for athlete in team_members %}
-                <tr>
-                    <td>{{ athlete.last_name }}</td>
-                    <td>{{ athlete.first_name }}</td>
-                    <td>{{ athlete.gender }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+      <h2>Team Roster</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Last Name</th>
+            <th>First Name</th>
+            <th>Gender</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for athlete in team_members %}
+          <tr>
+            <td>{{ athlete.last_name }}</td>
+            <td>{{ athlete.first_name }}</td>
+            <td>{{ athlete.gender }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
     {% else %}
-        <p>No Team Found.</p>
+      <p>No Team Found.</p>
     {% endif %}
+
+    <a href="#" class="add-athlete"><i data-lucide="plus-circle"></i> Add New Athlete</a>
+  </div>
+
+  <script>
+    lucide.createIcons();
+
+    function toggleDarkMode() {
+      document.body.classList.toggle('dark-mode');
+    }
+  </script>
 </body>
-<a href="#">Add New Athlete</a>
 </html>

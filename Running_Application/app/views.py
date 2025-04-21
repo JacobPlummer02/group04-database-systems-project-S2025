@@ -69,66 +69,66 @@ def create_new_user_view(request):
             return redirect('login')
     return render(request, 'app/create_new_user.html', {'teams': teams})
 
+
 def race_results_view(request):
-    #check if user is logged in
+    # Check if user is logged in
     user_id = request.session.get('user_id')
     if not user_id:
         return redirect('login')
-    
-    
+
+    # Filters from GET request
     event_filter = request.GET.get('event', '')
     start_date = request.GET.get('start_date', '')
     end_date = request.GET.get('end_date', '')
-    
+
     query = """
         SELECT 
             e.event_name, 
             m.meet_date,
             r.result, 
-            r.place
+            r.place,
+            w.temp_f,
+            w.wind_mph,
+            w.conditions
         FROM RaceResult r
         JOIN Event e ON r.event_id = e.event_id
         JOIN Meet m ON e.meet_id = m.meet_id
+        JOIN WeatherConditions w ON r.weather_id = w.weather_id
         WHERE r.athlete_id = %s
     """
     params = [user_id]
 
     if event_filter:
-        # case insensitive
         query += " AND LOWER(e.event_name) LIKE LOWER(%s)"
         params.append(f"%{event_filter}%")
-    
+
     if start_date and end_date:
-      
         try:
-            start_date = datetime.strptime(start_date, '%Y-%m-%d')
-            end_date = datetime.strptime(end_date, '%Y-%m-%d')
+            start_date_dt = datetime.strptime(start_date, '%Y-%m-%d')
+            end_date_dt = datetime.strptime(end_date, '%Y-%m-%d')
             query += " AND m.meet_date BETWEEN %s AND %s"
-            params.extend([start_date, end_date])
+            params.extend([start_date_dt, end_date_dt])
         except ValueError:
-            # invalid format
             return render(request, 'app/race_results.html', {
                 'error': 'Invalid date format. Please use YYYY-MM-DD.',
             })
-    
+
+    query += " ORDER BY m.meet_date DESC"
+
     with connection.cursor() as cursor:
         cursor.execute(query, params)
-        
-        # Convert query results to a list of dictionaries
         columns = [col[0] for col in cursor.description]
         race_results = [dict(zip(columns, row)) for row in cursor.fetchall()]
-    
-    # get users email
+
     user_email = request.session.get('user_email', 'User')
-    
+
     return render(request, 'app/race_results.html', {
         'user_email': user_email,
         'race_results': race_results,
         'event_filter': event_filter,
-        'start_date': start_date if start_date else '',
-        'end_date': end_date if end_date else '',
+        'start_date': start_date,
+        'end_date': end_date,
     })
-
 
 def add_race_result_view(request):
     user_id = request.session.get('user_id')
@@ -218,17 +218,21 @@ def dashboard_view(request):
         return redirect('login')
     with connection.cursor() as cursor:
         cursor.execute("""
-                    SELECT email, role
+                    SELECT email, role, first_name, last_name
                     FROM users
                     WHERE user_id = %s
                 """, [team_id])
     
     user_email = request.session.get('user_email')
     user_role = request.session.get('user_role')
+    user_name = request.session.get('user_first_name')
+    user_lname = request.session.get('user_last_name')
 
     return render (request, 'app/dashboard.html', {
         'user_email': user_email,
         'user_role': user_role,
+        'user_name': user_name,
+        'user_lname': user_lname,
     })
 
 def team_management_view(request):
