@@ -175,7 +175,7 @@
   <form method="get" class="filter-form">
     <div>
       <label for="event">Event Name</label>
-      <input type="text" id="event" name="event" value="{{ event_filter }}" placeholder="e.g. 100m, Marathon..." />
+      <input type="text" id="event" name="event" value="{{ event_filter }}" placeholder="e.g. M 1 Mile..." />
     </div>
     <div>
       <label for="start_date">Start Date</label>
@@ -197,6 +197,9 @@
       <th>Event Date</th>
       <th>Result</th>
       <th>Place</th>
+      <th>Temperature (°F)</th>
+      <th>Wind (mph)</th>
+      <th>Conditions</th>
     </tr>
     {% for result in race_results %}
     <tr>
@@ -204,6 +207,9 @@
       <td>{{ result.meet_date }}</td>
       <td>{{ result.result }}</td>
       <td>{{ result.place }}</td>
+      <td>{{ result.temp_f }}</td>
+      <td>{{ result.wind_mph }}</td>
+      <td>{{ result.conditions }}</td>
     </tr>
     {% endfor %}
   </table>
@@ -211,6 +217,6 @@
     <p class="no-results">No race results found.</p>
   {% endif %}
 
-  <a href="{% url 'add_race_result' %}" class="add-link">➕ Add New Race Result</a>
+  <a href="{% url 'add_race_result' %}" class="add-link">Add New Race Result</a>
 </body>
 </html>
