@@ -11,13 +11,11 @@ def login_view(request):
         email = request.POST.get('email')
         password = request.POST.get('password')
 
-        # Query the database to check if the user exists
         with connection.cursor() as cursor:
             cursor.execute("SELECT * FROM users WHERE email = %s AND password_hash = %s", [email, password])
             user = cursor.fetchone()
 
         if user:
-            # If user exists, redirect to the "Race Results" page
             request.session['user_id'] = user[0]
             request.session['user_first_name'] = user[1]
             request.session['user_last_name'] = user[2]
@@ -26,7 +24,6 @@ def login_view(request):
             request.session['user_role'] = user[8]
             return redirect('dashboard')
         else:
-            # If user doesn't exist, show an error message
             return render(request, 'app/login.html', {'error': 'Invalid email or password'})
         
     return render(request, 'app/login.html')
@@ -53,19 +50,17 @@ def create_new_user_view(request):
         if password != confirm_password:
             return render(request, 'app/create_new_user.html', {'error': 'Passwords do not match'})
 
-        # Check if user already exists
         with connection.cursor() as cursor:
             cursor.execute("SELECT * FROM users WHERE email = %s", [email])
             user = cursor.fetchone()
 
         if user:
-            # If user exists, show error message
             return render(request, 'app/create_new_user.html', {
                 'error': 'User already exists',
                 'teams': teams
             })
         else:
-            # If user doesn't exist, create a new user
+            # if user doesn't exist, create a new user
             with connection.cursor() as cursor:
                 cursor.execute("""
                     INSERT INTO users (first_name, last_name, dob, gender, email, password_hash, phone, role, team_id)
@@ -216,8 +211,6 @@ def training_log_view(request):
         'logs': logs,
     })
 
-    return render(request, 'app/add_race_result.html', {'form': form})
-
 def dashboard_view(request):
     user_id = request.session.get('user_id')
     team_id = request.session.get('team_id')
@@ -244,12 +237,10 @@ def team_management_view(request):
         return redirect('login')
     
     with connection.cursor() as cursor:
-        # First, get the user's team_id
         cursor.execute("SELECT team_id FROM users WHERE user_id = %s", [user_id])
         team_result = cursor.fetchone()
         
         if not team_result:
-            # Handle case where user doesn't exist
             return render(request, 'app/team_management.html', {
                 'user_email': request.session.get('user_email'),
                 'team_members': [],
@@ -259,14 +250,13 @@ def team_management_view(request):
         team_id = team_result[0]
         
         if not team_id:
-            # Handle case where user doesn't have a team
             return render(request, 'app/team_management.html', {
                 'user_email': request.session.get('user_email'),
                 'team_members': [],
                 'error': 'You are not assigned to a team'
             })
         
-        # Now get all members of that team
+        # get all members of that team
         cursor.execute("""
             SELECT last_name, first_name, gender
             FROM users
@@ -282,38 +272,48 @@ def team_management_view(request):
     })
 
 
-
 def my_team_view(request):
-    # check user login
     user_id = request.session.get('user_id')
     if not user_id:
         return redirect('login')
-    
-    # query to get the athlete's team members
-    query = """
-        SELECT 
-            u.user_id, 
-            u.first_name, 
-            u.last_name, 
-            u.email, 
-            u.phone, 
-            u.dob, 
-            u.gender
-        FROM Users u
-        JOIN Team t ON u.team_id = t.team_id
-        JOIN Users team_member ON team_member.team_id = t.team_id
-        WHERE team_member.user_id = %s
-    """
-    
+
     with connection.cursor() as cursor:
-        cursor.execute(query, [user_id])
+        cursor.execute("SELECT t.team_id, t.team_name, t.coach_id " \
+                        "FROM users u JOIN team t ON u.team_id = t.team_id " \
+                        "WHERE u.user_id = %s", [user_id])
+        result = cursor.fetchone()
+
+        if not result:
+            return render(request, 'app/my_team.html', {
+                'user_email': request.session.get('user_email'),
+                'team_members': [],
+                'team_name': 'Unknown Team',
+                'error': 'User or team not found.'
+            })
+
+        team_id, team_name, coach_id = result
+
+        # get team members
+        cursor.execute("""
+            SELECT first_name, last_name, email, phone, dob, gender
+            FROM users
+            WHERE team_id = %s AND role = %s
+        """, [team_id, 'Athlete'])
         columns = [col[0] for col in cursor.description]
         team_members = [dict(zip(columns, row)) for row in cursor.fetchall()]
-    
-    # Get the user email (from session)
-    user_email = request.session.get('user_email', 'User')
-    
+
+        # get coach info
+        cursor.execute("""
+            SELECT first_name, last_name, email, phone
+            FROM users
+            WHERE user_id = %s
+        """, [coach_id])
+        coach = cursor.fetchone()
+        coach_info = dict(zip(['first_name', 'last_name', 'email', 'phone'], coach)) if coach else None
+
     return render(request, 'app/my_team.html', {
-        'user_email': user_email,
+        'user_email': request.session.get('user_email'),
         'team_members': team_members,
+        'team_name': team_name,
+        'coach_info': coach_info
     })

@@ -99,7 +99,20 @@
 <body>
 
     <h1>Team Members</h1>
+    <p style="font-size: 20px; color: var(--text-sub); text-align: center; margin-top: -10px;">
+        Team: {{ team_name }}
+    </p>
     <p>Welcome, {{ user_email }}</p>
+    
+    <div style="max-width: 400px; margin: 40px auto; background-color: var(--card-bg); padding: 20px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); text-align: center;">
+        {% if coach_info %}
+        <h2 style="color: var(--primary); margin-bottom: 12px;">Coach {{ coach_info.first_name }} {{ coach_info.last_name }}</h2>
+            <p style="font-size: 16px;">Email: {{ coach_info.email }}</a></p>
+            <p style="font-size: 16px;">Phone: {{ coach_info.phone }}</p>
+        {% else %}
+            <p style="font-size: 16px; color: var(--accent);">No coach assigned yet.</p>
+        {% endif %}
+    </div>
 
     <table>
         <thead>
