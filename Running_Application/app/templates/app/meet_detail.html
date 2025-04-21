@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>{{ meet.name }} — {{ meet.date }}</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Athlete</th>
+      <th>Event</th>
+      <th>Result</th>
+      <th>Place</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for result in race_results %}
+    <tr>
+      <td>{{ result.user.email }}</td>
+      <td>{{ result.event_name }}</td>
+      <td>{{ result.result }}</td>
+      <td>{{ result.place }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+<a href="{% url 'meet_list' %}">← Back to Meet List</a>
+{% endblock %}

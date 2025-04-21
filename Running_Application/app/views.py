@@ -11,13 +11,11 @@ def login_view(request):
         email = request.POST.get('email')
         password = request.POST.get('password')
 
-        # Query the database to check if the user exists
         with connection.cursor() as cursor:
             cursor.execute("SELECT * FROM users WHERE email = %s AND password_hash = %s", [email, password])
             user = cursor.fetchone()
 
         if user:
-            # If user exists, redirect to the "Race Results" page
             request.session['user_id'] = user[0]
             request.session['user_first_name'] = user[1]
             request.session['user_last_name'] = user[2]
@@ -26,7 +24,6 @@ def login_view(request):
             request.session['user_role'] = user[8]
             return redirect('dashboard')
         else:
-            # If user doesn't exist, show an error message
             return render(request, 'app/login.html', {'error': 'Invalid email or password'})
         
     return render(request, 'app/login.html')
@@ -53,19 +50,17 @@ def create_new_user_view(request):
         if password != confirm_password:
             return render(request, 'app/create_new_user.html', {'error': 'Passwords do not match'})
 
-        # Check if user already exists
         with connection.cursor() as cursor:
             cursor.execute("SELECT * FROM users WHERE email = %s", [email])
             user = cursor.fetchone()
 
         if user:
-            # If user exists, show error message
             return render(request, 'app/create_new_user.html', {
                 'error': 'User already exists',
                 'teams': teams
             })
         else:
-            # If user doesn't exist, create a new user
+            # if user doesn't exist, create a new user
             with connection.cursor() as cursor:
                 cursor.execute("""
                     INSERT INTO users (first_name, last_name, dob, gender, email, password_hash, phone, role, team_id)
@@ -74,66 +69,65 @@ def create_new_user_view(request):
             return redirect('login')
     return render(request, 'app/create_new_user.html', {'teams': teams})
 
+
 def race_results_view(request):
     # Check if user is logged in
     user_id = request.session.get('user_id')
     if not user_id:
         return redirect('login')
-    
-    # Initialize filter variables
+
+    # Filters from GET request
     event_filter = request.GET.get('event', '')
     start_date = request.GET.get('start_date', '')
     end_date = request.GET.get('end_date', '')
-    
-    
+
     query = """
         SELECT 
             e.event_name, 
             m.meet_date,
             r.result, 
-            r.place
+            r.place,
+            w.temp_f,
+            w.wind_mph,
+            w.conditions
         FROM RaceResult r
         JOIN Event e ON r.event_id = e.event_id
         JOIN Meet m ON e.meet_id = m.meet_id
+        JOIN WeatherConditions w ON r.weather_id = w.weather_id
         WHERE r.athlete_id = %s
     """
     params = [user_id]
 
-    
     if event_filter:
-        query += " AND e.event_name LIKE %s"
-        params.append(f"%{event_filter}%")  
-    
+        query += " AND LOWER(e.event_name) LIKE LOWER(%s)"
+        params.append(f"%{event_filter}%")
+
     if start_date and end_date:
-        #parse start and end date
         try:
-            start_date = datetime.strptime(start_date, '%Y-%m-%d')
-            end_date = datetime.strptime(end_date, '%Y-%m-%d')
+            start_date_dt = datetime.strptime(start_date, '%Y-%m-%d')
+            end_date_dt = datetime.strptime(end_date, '%Y-%m-%d')
             query += " AND m.meet_date BETWEEN %s AND %s"
-            params.extend([start_date, end_date])
+            params.extend([start_date_dt, end_date_dt])
         except ValueError:
-            # handle invalid format
             return render(request, 'app/race_results.html', {
                 'error': 'Invalid date format. Please use YYYY-MM-DD.',
             })
-    
-   
+
+    query += " ORDER BY m.meet_date DESC"
+
     with connection.cursor() as cursor:
         cursor.execute(query, params)
-        
-        # Convert query results to a list of dictionaries
         columns = [col[0] for col in cursor.description]
         race_results = [dict(zip(columns, row)) for row in cursor.fetchall()]
-    
-    #get user's email for display
+
     user_email = request.session.get('user_email', 'User')
-    
+
     return render(request, 'app/race_results.html', {
         'user_email': user_email,
         'race_results': race_results,
         'event_filter': event_filter,
-        'start_date': start_date if start_date else '',
-        'end_date': end_date if end_date else '',
+        'start_date': start_date,
+        'end_date': end_date,
     })
 
 def add_race_result_view(request):
@@ -149,35 +143,34 @@ def add_race_result_view(request):
         cursor.execute("SELECT weather_id, temp_f, wind_mph, conditions FROM weatherconditions")
         weather = cursor.fetchall() # (id, temp_f, wind_mph, conditions)
 
-    if request.method == 'POST':
-        form = RaceResultForm(request.POST)
-        if form.is_valid():
-            event_id = form.cleaned_data['event_id']
-            weather_id = form.cleaned_data['weather_id']
-            result = form.cleaned_data['result']
-            place = form.cleaned_data['place']
+    form = RaceResultForm(request.POST if request.method == 'POST' else None)
+    form.fields['event_id'].choices = [
+        (event[0], f"{event[1]} ({event[3]})") for event in events
+    ]
+    form.fields['weather_id'].choices = [
+        (weather[0], f"{weather[1]}°F, {weather[2]} mph, {weather[3]}") for weather in weather
+    ]
 
-            with connection.cursor() as cursor:
-                cursor.execute("""
-                    INSERT INTO raceresult (athlete_id, event_id, weather_id, result, place)
-                    VALUES (%s, %s, %s, %s, %s)
-                """, [user_id, event_id, weather_id, result, place])
+    if request.method == 'POST' and form.is_valid():
+        event_id = form.cleaned_data['event_id']
+        weather_id = form.cleaned_data['weather_id']
+        result = form.cleaned_data['result']
+        place = form.cleaned_data['place']
 
-            return redirect('race_results')
-    else:
-        form = RaceResultForm()
-        form.fields['event_id'].choices = [
-            (event[0], f"{event[1]} ({event[3]})") for event in events
-        ]
-        form.fields['weather_id'].choices = [
-            (weather[0], f"{weather[1]}°F, {weather[2]} mph, {weather[3]}") for weather in weather
-        ]
+        with connection.cursor() as cursor:
+            cursor.execute("""
+                INSERT INTO raceresult (athlete_id, event_id, weather_id, result, place)
+                VALUES (%s, %s, %s, %s, %s)
+            """, [user_id, event_id, weather_id, result, place])
+
+        return redirect('race_results')
 
     return render(request, 'app/add_race_result.html', {
         'form': form,
         'events': events,
         'weather': weather
     })
+
 def training_log_view(request):
     # ensure the user is logged in
     user_id = request.session.get('user_id')
@@ -225,17 +218,21 @@ def dashboard_view(request):
         return redirect('login')
     with connection.cursor() as cursor:
         cursor.execute("""
-                    SELECT email, role
+                    SELECT email, role, first_name, last_name
                     FROM users
                     WHERE user_id = %s
                 """, [team_id])
     
     user_email = request.session.get('user_email')
     user_role = request.session.get('user_role')
+    user_name = request.session.get('user_first_name')
+    user_lname = request.session.get('user_last_name')
 
     return render (request, 'app/dashboard.html', {
         'user_email': user_email,
         'user_role': user_role,
+        'user_name': user_name,
+        'user_lname': user_lname,
     })
 
 def team_management_view(request):
@@ -244,12 +241,10 @@ def team_management_view(request):
         return redirect('login')
     
     with connection.cursor() as cursor:
-        # First, get the user's team_id
         cursor.execute("SELECT team_id FROM users WHERE user_id = %s", [user_id])
         team_result = cursor.fetchone()
         
         if not team_result:
-            # Handle case where user doesn't exist
             return render(request, 'app/team_management.html', {
                 'user_email': request.session.get('user_email'),
                 'team_members': [],
@@ -259,14 +254,13 @@ def team_management_view(request):
         team_id = team_result[0]
         
         if not team_id:
-            # Handle case where user doesn't have a team
             return render(request, 'app/team_management.html', {
                 'user_email': request.session.get('user_email'),
                 'team_members': [],
                 'error': 'You are not assigned to a team'
             })
         
-        # Now get all members of that team
+        # get all members of that team
         cursor.execute("""
             SELECT last_name, first_name, gender
             FROM users
@@ -279,4 +273,51 @@ def team_management_view(request):
     return render(request, 'app/team_management.html', {
         'user_email': request.session.get('user_email'),
         'team_members': team_members,
+    })
+
+
+def my_team_view(request):
+    user_id = request.session.get('user_id')
+    if not user_id:
+        return redirect('login')
+
+    with connection.cursor() as cursor:
+        cursor.execute("SELECT t.team_id, t.team_name, t.coach_id " \
+                        "FROM users u JOIN team t ON u.team_id = t.team_id " \
+                        "WHERE u.user_id = %s", [user_id])
+        result = cursor.fetchone()
+
+        if not result:
+            return render(request, 'app/my_team.html', {
+                'user_email': request.session.get('user_email'),
+                'team_members': [],
+                'team_name': 'Unknown Team',
+                'error': 'User or team not found.'
+            })
+
+        team_id, team_name, coach_id = result
+
+        # get team members
+        cursor.execute("""
+            SELECT first_name, last_name, email, phone, dob, gender
+            FROM users
+            WHERE team_id = %s AND role = %s
+        """, [team_id, 'Athlete'])
+        columns = [col[0] for col in cursor.description]
+        team_members = [dict(zip(columns, row)) for row in cursor.fetchall()]
+
+        # get coach info
+        cursor.execute("""
+            SELECT first_name, last_name, email, phone
+            FROM users
+            WHERE user_id = %s
+        """, [coach_id])
+        coach = cursor.fetchone()
+        coach_info = dict(zip(['first_name', 'last_name', 'email', 'phone'], coach)) if coach else None
+
+    return render(request, 'app/my_team.html', {
+        'user_email': request.session.get('user_email'),
+        'team_members': team_members,
+        'team_name': team_name,
+        'coach_info': coach_info
     })
