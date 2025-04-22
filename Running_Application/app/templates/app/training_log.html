@@ -1,255 +1,50 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <title>Training Log</title>
-  <style>
-    :root {
-      --primary: #3b82f6;
-      --primary-hover: #2563eb;
-      --accent: #f43f5e;
-      --accent-hover: #e11d48;
-      --bg: #f8fafc;
-      --card-bg: #ffffff;
-      --text-main: #1e293b;
-      --text-sub: #64748b;
-    }
-
-    * {
-      box-sizing: border-box;
-    }
-
-    body {
-      margin: 0;
-      padding: 40px;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: var(--bg);
-      color: var(--text-main);
-    }
-
-    button {
-            padding: 10px;
-            background-color: #4a90e2;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            font-size: 16px;
-            cursor: pointer;
-            margin-top: 10px;
-        }
-    button:hover {
-        background-color: #357abd;
-    }
-
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 40px;
-    }
-
-    .header h1 {
-      font-size: 28px;
-      font-weight: 600;
-    }
-
-    .logout {
-      background-color: var(--accent);
-      color: white;
-      padding: 10px 18px;
-      border-radius: 8px;
-      border: none;
-      text-decoration: none;
-      font-weight: 500;
-      transition: background-color 0.2s;
-    }
-
-    .logout:hover {
-      background-color: var(--accent-hover);
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      background-color: var(--card-bg);
-      border-radius: 12px;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
-      overflow: hidden;
-    }
-
-    th, td {
-      padding: 16px 20px;
-      text-align: left;
-    }
-
-    th {
-      background-color: #f1f5f9;
-      font-weight: 600;
-      color: var(--text-sub);
-    }
-
-    tr:not(:last-child) td {
-      border-bottom: 1px solid #e2e8f0;
-    }
-
-    tr:hover {
-      background-color: #f9fafb;
-    }
-
-    .no-results {
-      font-style: italic;
-      color: var(--text-sub);
-      margin-top: 20px;
-      text-align: center;
-    }
-
-    .add-link {
-      display: inline-block;
-      margin-top: 30px;
-      padding: 12px 24px;
-      background-color: var(--primary);
-      color: white;
-      text-decoration: none;
-      border-radius: 8px;
-      font-weight: 600;
-      transition: background-color 0.2s ease;
-    }
-
-    .add-link:hover {
-      background-color: var(--primary-hover);
-    }
-
-    .button-link {
-      display: inline-block;
-      padding: 10px 18px;
-      background-color: var(--primary);
-      color: white;
-      text-decoration: none;
-      border-radius: 8px;
-      font-weight: 500;
-      transition: background-color 0.2s;
-    }
-
-    .button-link:hover {
-      background-color: var(--primary-hover);
-    }
-
-    .form-table {
-    width: 100%;
-    background-color: var(--card-bg);
-    border-radius: 12px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
-    border-collapse: collapse;
-    margin-bottom: 20px;
-    }
-
-    .form-table td {
-    padding: 12px 20px;
-    border-bottom: 1px solid #e2e8f0;
-    vertical-align: middle;
-    }
-
-    .form-table tr:last-child td {
-    border-bottom: none;
-    }
-
-    .form-table label {
-    font-weight: 600;
-    color: var(--text-sub);
-    }
-
-    .form-table input {
-    width: 100%;
-    padding: 10px;
-    border-radius: 8px;
-    border: 1px solid #e2e8f0;
-    }
-
-    .form-container {
-        background-color: white;
-        padding: 30px 40px;
-        border-radius: 12px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        width: 400px;
-    }
-    h2 {
-        text-align: center;
-        color: #333;
-        margin-bottom: 25px;
-    }
-    form {
-        display: flex;
-        flex-direction: column;
-    }
-    form p {
-        margin-bottom: 15px;
-    }
-
-    .content-wrapper {
-      max-width: 900px;
-      margin: 0 auto;
-      display: flex;
-      flex-direction: column;
-      gap: 40px;
-    }
-
-    .form-section-wrapper {
-      display: flex;
-      justify-content: flex-start;
-    }
-
-    form {
-      width: 100%;
-      max-width: 400px;
-    }
-  </style>
-</head>
-
+{% extends "base.html" %}
+{% block content %}
 <body>
-    <div class="header">
-        <h1>Training Logs</h1>
-        <a href="{% url 'login' %}" class="logout">Logout</a>
-    </div>
+  <div class="header">
+      <h1>Training Logs</h1>
+      <a href="{% url 'login' %}" class="logout">Logout</a>
+  </div>
 
-    <div class="content-wrapper">
-        <div class="form-section-wrapper">
-            <!-- Form to add a new log -->
-            <form method="POST">
-                {% csrf_token %}
-                <table>
-                    {{ form.as_table }}
-                </table>
-                <button type="submit" class="button-link">Add Entry</button>
-            </form>
-        </div>
+  <div class="content-wrapper">
+      <div class="form-section-wrapper">
+          <form method="POST">
+              {% csrf_token %}
+              <table>
+                  {{ form.as_table }}
+              </table>
+              <button type="submit" class="button-link">Add Entry</button>
+          </form>
+      </div>
 
-        <div>
-            <h3>Your Logs</h3>
-            {% if logs %}
-            <table>
-                <thead>
-                <tr>
-                    <th>Date</th>
-                    <th>Workout Type</th>
-                    <th>Duration</th>
-                    <th>Distance (miles)</th>
-                </tr>
-                </thead>
-                <tbody>
-                {% for log in logs %}
-                <tr>
-                    <td>{{ log.date }}</td>
-                    <td>{{ log.workout_type }}</td>
-                    <td>{{ log.duration }}</td>
-                    <td>{{ log.distance_miles }}</td>
-                </tr>
-                {% endfor %}
-                </tbody>
-            </table>
-            {% else %}
-            <p>No training logs found.</p>
-            {% endif %}
-        </div>
-    </div>
+      <div>
+          <h3>Your Logs</h3>
+          {% if logs %}
+          <table>
+              <thead>
+              <tr>
+                  <th>Date</th>
+                  <th>Workout Type</th>
+                  <th>Duration</th>
+                  <th>Distance (miles)</th>
+              </tr>
+              </thead>
+              <tbody>
+              {% for log in logs %}
+              <tr>
+                  <td>{{ log.date }}</td>
+                  <td>{{ log.workout_type }}</td>
+                  <td>{{ log.duration }}</td>
+                  <td>{{ log.distance_miles }}</td>
+              </tr>
+              {% endfor %}
+              </tbody>
+          </table>
+          {% else %}
+          <p>No training logs found.</p>
+          {% endif %}
+      </div>
+  </div>
 </body>
-</html>
+  
+{% endblock %}

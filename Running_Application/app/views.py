@@ -29,7 +29,6 @@ def login_view(request):
     return render(request, 'app/login.html')
 
 def create_new_user_view(request):
-    # Get all team id's and names
     with connection.cursor() as cursor:
         cursor.execute("SELECT team_id, team_name FROM team")
         teams = cursor.fetchall()  # (id, name)
@@ -60,7 +59,6 @@ def create_new_user_view(request):
                 'teams': teams
             })
         else:
-            # if user doesn't exist, create a new user
             with connection.cursor() as cursor:
                 cursor.execute("""
                     INSERT INTO users (first_name, last_name, dob, gender, email, password_hash, phone, role, team_id)
@@ -71,15 +69,17 @@ def create_new_user_view(request):
 
 
 def race_results_view(request):
-    # Check if user is logged in
     user_id = request.session.get('user_id')
     if not user_id:
         return redirect('login')
 
-    # Filters from GET request
     event_filter = request.GET.get('event', '')
     start_date = request.GET.get('start_date', '')
     end_date = request.GET.get('end_date', '')
+    user_email = request.session.get('user_email')
+    user_role = request.session.get('user_role')
+    user_name = request.session.get('user_first_name')
+    user_lname = request.session.get('user_last_name')
 
     query = """
         SELECT 
@@ -128,6 +128,9 @@ def race_results_view(request):
         'event_filter': event_filter,
         'start_date': start_date,
         'end_date': end_date,
+        'user_role': user_role,
+        'user_name': user_name,
+        'user_lname': user_lname,
     })
 
 def add_race_result_view(request):
@@ -171,45 +174,6 @@ def add_race_result_view(request):
         'weather': weather
     })
 
-def training_log_view(request):
-    # ensure the user is logged in
-    user_id = request.session.get('user_id')
-    if not user_id:
-        return redirect('login')
-
-    # handle form submission
-    if request.method == 'POST':
-        form = TrainingLogForm(request.POST)
-        if form.is_valid():
-            date         = form.cleaned_data['date']
-            workout_type = form.cleaned_data['workout_type']
-            duration     = form.cleaned_data['duration'] or None
-            distance     = form.cleaned_data['distance_miles']
-            with connection.cursor() as cursor:
-                cursor.execute("""
-                    INSERT INTO traininglog
-                      (athlete_id, date, workout_type, duration, distance_miles)
-                    VALUES (%s, %s, %s, %s, %s)
-                """, [user_id, date, workout_type, duration, distance])
-            return redirect('training_log')
-    else:
-        form = TrainingLogForm()
-
-    # fetch existing logs
-    with connection.cursor() as cursor:
-        cursor.execute("""
-            SELECT log_id, date, workout_type, duration, distance_miles
-            FROM traininglog
-            WHERE athlete_id = %s
-            ORDER BY date DESC
-        """, [user_id])
-        cols = [c[0] for c in cursor.description]
-        logs = [dict(zip(cols, row)) for row in cursor.fetchall()]
-
-    return render(request, 'app/training_log.html', {
-        'form': form,
-        'logs': logs,
-    })
 
 def dashboard_view(request):
     user_id = request.session.get('user_id')
@@ -297,7 +261,6 @@ def my_team_view(request):
 
         team_id, team_name, coach_id = result
 
-        # get team members
         cursor.execute("""
             SELECT first_name, last_name, email, phone, dob, gender
             FROM users
@@ -306,7 +269,6 @@ def my_team_view(request):
         columns = [col[0] for col in cursor.description]
         team_members = [dict(zip(columns, row)) for row in cursor.fetchall()]
 
-        # get coach info
         cursor.execute("""
             SELECT first_name, last_name, email, phone
             FROM users
