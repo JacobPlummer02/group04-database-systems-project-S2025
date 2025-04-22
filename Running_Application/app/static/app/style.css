@@ -137,9 +137,21 @@ body.dark-mode .dashboard-item p {
 
 .search-form {
     display: flex;
+    flex-direction: row;
     align-items: center;
+    margin-left: auto;
+    margin-right: auto;
     max-width: 500px;
+    width: 100%;
     margin-bottom: 30px;
+    gap: 0;
+  }
+
+  .search-category,
+  .search-input,
+  .search-btn {
+    height: 44px;
+    box-sizing: border-box;
   }
   
   .search-category {
@@ -158,6 +170,7 @@ body.dark-mode .dashboard-item p {
     border-radius: 0 8px 8px 0;
     font-size: 16px;
     flex: 1;
+    min-width: 0;
   }
   
   .search-btn {
@@ -170,6 +183,11 @@ body.dark-mode .dashboard-item p {
     font-size: 16px;
     font-weight: 600;
     cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 44px;
+    white-space: nowrap;
   }
 
   .nav-bar ul {
