@@ -14,7 +14,7 @@
   <div class="container">
     <div class="header">
       <div class="user-info">
-        <span>Welcome, {{ user_name }} {{ user_lname }}!</span>
+        <span>{{ user_name }} {{ user_lname }}!</span>
         <span class="role-badge">{{ user_role|title }}
         <button class="toggle-dark" title="Toggle Dark Mode">
           <i data-lucide="moon"></i>
@@ -24,7 +24,7 @@
         <ul>
           <li><a href="{% url 'race_results' %}">Race Results</a></li>
           <li><a href="{% url 'team_management' %}">Team Management</a></li>
-          <li><a href="#">Workout Plans</a></li>
+          <li><a href="{% url 'training_log' %}">Workout Plans</a></li>
           <li><a href="#">Meets</a></li>
         </ul>
       </nav>
