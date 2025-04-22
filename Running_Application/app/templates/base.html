@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}Running Application Dashboard{% endblock %}</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'app/style.css' %}">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  {% block head %}{% endblock %}
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="user-info">
+        <span>Welcome, {{ user_name }} {{ user_lname }}!</span>
+        <span class="role-badge">{{ user_role|title }}
+        <button class="toggle-dark" title="Toggle Dark Mode">
+          <i data-lucide="moon"></i>
+        </button>
+      </div>
+      <nav class="nav-bar">
+        <ul>
+          <li><a href="{% url 'race_results' %}">Race Results</a></li>
+          <li><a href="{% url 'team_management' %}">Team Management</a></li>
+          <li><a href="#">Workout Plans</a></li>
+          <li><a href="#">Meets</a></li>
+        </ul>
+      </nav>
+      <a href="{% url 'login' %}" class="logout">Logout</a>
+    </div>
+
+    {% block content %}
+    {% endblock %}
+  </div>
+
+  <script>
+    lucide.createIcons();
+    document.querySelector('.toggle-dark').addEventListener('click', function() {
+      document.body.classList.toggle('dark-mode');
+    });
+  </script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>
