@@ -27,4 +27,5 @@ urlpatterns = [
     path('add_race_result/', views.add_race_result_view, name='add_race_result'),
     path('team_management/', views.team_management_view, name='team_management'),
     path('my_team/', views.my_team_view, name='my_team'),
+    path('training_log/', views.training_log_view, name='training_log'),
 ]

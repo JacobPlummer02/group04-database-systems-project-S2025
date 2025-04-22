@@ -321,3 +321,39 @@ def my_team_view(request):
         'team_name': team_name,
         'coach_info': coach_info
     })
+
+def training_log_view(request):
+    user_id = request.session.get('user_id')
+    if not user_id:
+        return redirect('login')
+
+    if request.method == 'POST':
+        form = TrainingLogForm(request.POST)
+        if form.is_valid():
+            date = form.cleaned_data['date']
+            workout_type = form.cleaned_data['workout_type']
+            duration = form.cleaned_data['duration']
+            distance = form.cleaned_data['distance_miles']
+
+            with connection.cursor() as cursor:
+                cursor.execute("""
+                    INSERT INTO traininglog (athlete_id, date, workout_type, duration, distance_miles)
+                    VALUES (%s, %s, %s, %s, %s)
+                """, [user_id, date, workout_type, duration, distance])
+            return redirect('training_log')
+    else:
+        form = TrainingLogForm()
+
+    with connection.cursor() as cursor:
+        cursor.execute("""
+            SELECT log_id, date, workout_type, duration, distance_miles
+            FROM traininglog
+            WHERE athlete_id = %s
+            ORDER BY date DESC
+        """, [user_id])
+        columns = [col[0] for col in cursor.description]
+        logs = [dict(zip(columns, row)) for row in cursor.fetchall()]
+    return render(request, 'app/training_log.html', {
+        'form': form,
+        'logs': logs
+    })

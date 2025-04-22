@@ -28,11 +28,10 @@ class TrainingLogForm(forms.Form):
     )
     duration = forms.CharField(
         label='Duration (HH:MM:SS)',
-        max_length=8,
-        required=False,
-        help_text='Leave blank if not applicable'
+        max_length=8
     )
-    distance_miles = forms.IntegerField(
+    distance_miles = forms.DecimalField(
         label='Distance (miles)',
-        min_value=0
+        min_value=0,
+        max_value=999.99,
     )
