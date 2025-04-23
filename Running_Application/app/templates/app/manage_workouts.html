@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% block content %}
+<<div class="form-container">
+  <h2>Manage Workout Plans for Athletes</h2>
+
+  {% if error %}
+    <p class="error">{{ error }}</p>
+  {% endif %}
+
+  <form method="POST">
+    {% csrf_token %}
+
+    <label for="athlete_id">Select Athlete:</label>
+    <select name="athlete_id" required>
+      <option value="">-- Choose Athlete --</option>
+      {% for athlete in athletes %}
+        <option value="{{ athlete.0 }}">{{ athlete.1 }} {{ athlete.2 }}</option>
+      {% endfor %}
+    </select>
+
+    {{ form.as_p }}
+
+    <button type="submit">Add Workout</button>
+  </form>
+</div>>
+
+<div class="workout-list">
+  <h3>Workout Plans</h3>
+  {% if workouts %}
+    <table>
+      <thead>
+        <tr>
+          <th>Athlete</th>
+          <th>Date</th>
+          <th>Workout Type</th>
+          <th>Duration</th>
+          <th>Distance (miles)</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for workout in workouts %}
+          <tr>
+            <td>{{ workout.athlete.first_name }} {{ workout.athlete.last_name }}</td>
+            <td>{{ workout.date }}</td>
+            <td>{{ workout.workout_type }}</td>
+            <td>{{ workout.duration }}</td>
+            <td>{{ workout.distance_miles }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p>No workouts found.</p>
+  {% endif %}
+{% endblock %}
+

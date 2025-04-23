@@ -32,4 +32,5 @@ urlpatterns = [
     path('meet_list/<int:meet_id>/', views.meet_details_view, name='meet_details'),
     path('logout/', views.logout_view, name='logout'),
     path('add_athlete/', views.add_athlete_view, name='add_athlete'),
+    path('manage_workouts/', views.manage_workouts_view, name='manage_workouts'),
 ]

@@ -240,13 +240,25 @@ def team_management_view(request):
         
         columns = [col[0] for col in cursor.description]
         team_members = [dict(zip(columns, row)) for row in cursor.fetchall()]
+
+        # get team name
+        cursor.execute("SELECT team_name FROM team WHERE team_id = %s", [team_id])
+        team_name = cursor.fetchone()
+        if not team_name:
+            return render(request, 'app/team_management.html', {
+                'user_email': request.session.get('user_email'),
+                'team_members': [],
+                'error': 'Team not found'
+            })
+        team_name = team_name[0]
     
     return render(request, 'app/team_management.html', {
         'user_email': request.session.get('user_email'),
         'team_members': team_members,
         'user_role': request.session.get('user_role'),
         'user_name': request.session.get('user_first_name'),
-        'user_lname': request.session.get('user_last_name')
+        'user_lname': request.session.get('user_last_name'),
+        'team_name': team_name
     })
 
 
@@ -446,7 +458,55 @@ def add_athlete_view(request):
     })
 
 
+def manage_workouts_view(request):
+    user_id = request.session.get('user_id')
+    user_role = request.session.get('user_role')
+    if not user_id or user_role != 'Coach':
+        return redirect('login')
 
+    with connection.cursor() as cursor:
+        cursor.execute("SELECT team_id FROM users WHERE user_id = %s", [user_id])
+        result = cursor.fetchone()
+        if not result:
+            return render(request, 'app/manage_workouts.html', {'error': 'Team not found'})
+        team_id = result[0]
 
+        cursor.execute("SELECT user_id, first_name, last_name FROM users WHERE team_id = %s AND role = 'Athlete'", [team_id])
+        athletes = cursor.fetchall()
 
+    if request.method == 'POST':
+        athlete_id = request.POST.get('athlete_id')
+        form = TrainingLogForm(request.POST)
+        if form.is_valid():
+            date = form.cleaned_data['date']
+            workout_type = form.cleaned_data['workout_type']
+            duration = form.cleaned_data['duration']
+            distance = form.cleaned_data['distance_miles']
+
+            with connection.cursor() as cursor:
+                cursor.execute("""
+                    INSERT INTO traininglog (athlete_id, date, workout_type, duration, distance_miles)
+                    VALUES (%s, %s, %s, %s, %s)
+                """, [athlete_id, date, workout_type, duration, distance])
+            return redirect('manage_workouts')
+    else:
+        form = TrainingLogForm()
+
+    with connection.cursor() as cursor:
+        cursor.execute("""
+            SELECT log_id, date, workout_type, duration, distance_miles
+            FROM traininglog
+            WHERE athlete_id IN (SELECT user_id FROM users WHERE team_id = %s)
+            ORDER BY date DESC
+        """, [team_id])
+        columns = [col[0] for col in cursor.description]
+        workouts = [dict(zip(columns, row)) for row in cursor.fetchall()]
+
+    return render(request, 'app/manage_workouts.html', {
+        'athletes': athletes,
+        'workouts': workouts,
+        'user_role': user_role,
+        'user_name': request.session.get('user_first_name'),
+        'user_lname': request.session.get('user_last_name')
+    })
 

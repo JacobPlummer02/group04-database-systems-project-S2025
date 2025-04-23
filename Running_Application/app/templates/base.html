@@ -26,7 +26,7 @@
           <li><a href="{% url 'race_results' %}">Race Results</a></li>
           {% if user_role == 'Coach' %}
             <li><a href="{% url 'team_management' %}">Team Management</a></li>
-            <li><a href="{% url 'training_log' %}">Workouts</a></li>
+            <li><a href="{% url 'manage_workouts' %}">Workouts</a></li>
           {% endif %}
           {% if user_role == 'Athlete' %}
             <li><a href="{% url 'training_log' %}">My Logs</a></li>  
