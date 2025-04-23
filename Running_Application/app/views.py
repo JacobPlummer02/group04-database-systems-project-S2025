@@ -171,7 +171,10 @@ def add_race_result_view(request):
     return render(request, 'app/add_race_result.html', {
         'form': form,
         'events': events,
-        'weather': weather
+        'weather': weather,
+        'user_role': request.session.get('user_role'),
+        'user_name': request.session.get('user_first_name'),
+        'user_lname': request.session.get('user_last_name'),
     })
 
 
@@ -237,6 +240,9 @@ def team_management_view(request):
     return render(request, 'app/team_management.html', {
         'user_email': request.session.get('user_email'),
         'team_members': team_members,
+        'user_role': request.session.get('user_role'),
+        'user_name': request.session.get('user_first_name'),
+        'user_lname': request.session.get('user_last_name')
     })
 
 
@@ -284,7 +290,7 @@ def my_team_view(request):
         'coach_info': coach_info,
         'user_role': request.session.get('user_role'),
         'user_name': request.session.get('user_first_name'),
-        'user_lname': request.session.get('user_last_name'),
+        'user_lname': request.session.get('user_last_name')
     })
 
 def training_log_view(request):
@@ -338,7 +344,10 @@ def meet_list_view(request):
         columns = [col[0] for col in cursor.description]
         meets = [dict(zip(columns, row)) for row in cursor.fetchall()]
     return render(request, 'app/meet_list.html', {
-        'meets': meets
+        'meets': meets,
+        'user_role': request.session.get('user_role'),
+        'user_name': request.session.get('user_first_name'),
+        'user_lname': request.session.get('user_last_name')
     })
 
 def meet_details_view(request, meet_id):
@@ -377,6 +386,9 @@ def meet_details_view(request, meet_id):
         'meet_date': meet_date,
         'location': location,
         'venue': venue,
-        'results': results
+        'results': results,
+        'user_role': request.session.get('user_role'),
+        'user_name': request.session.get('user_first_name'),
+        'user_lname': request.session.get('user_last_name')
     })
 
