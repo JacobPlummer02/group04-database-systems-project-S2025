@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
 from django.db import connection
 from django.template.loader import get_template
+from django.contrib.auth.decorators import login_required
 from .forms import RaceResultForm
 from .forms import TrainingLogForm
 from datetime import datetime
@@ -27,6 +28,10 @@ def login_view(request):
             return render(request, 'app/login.html', {'error': 'Invalid email or password'})
         
     return render(request, 'app/login.html')
+
+def logout_view(request):
+    request.session.flush()
+    return redirect('login')
 
 def create_new_user_view(request):
     with connection.cursor() as cursor:
@@ -176,7 +181,6 @@ def add_race_result_view(request):
         'user_name': request.session.get('user_first_name'),
         'user_lname': request.session.get('user_last_name'),
     })
-
 
 def dashboard_view(request):
     user_id = request.session.get('user_id')
@@ -391,4 +395,58 @@ def meet_details_view(request, meet_id):
         'user_name': request.session.get('user_first_name'),
         'user_lname': request.session.get('user_last_name')
     })
+
+def add_athlete_view(request):
+    user_id = request.session.get('user_id')
+    user_role = request.session.get('user_role')
+    if not user_id or user_role != 'Coach':
+        return redirect('login')
+    
+    with connection.cursor() as cursor:
+        cursor.execute("SELECT team_id FROM users WHERE user_id = %s", [user_id])
+        result = cursor.fetchone()
+        if not result:
+            return render(request, 'app/add_new_athlete.html', {'error': 'Team not found'})
+        team_id = result[0]
+
+    if request.method == 'POST':
+        first_name = request.POST.get('first_name')
+        last_name = request.POST.get('last_name')
+        dob = request.POST.get('dob')
+        gender = request.POST.get('gender')
+        email = request.POST.get('email')
+        phone = request.POST.get('phone')
+        password = request.POST.get('password')
+        confirm_password = request.POST.get('confirm_password')
+
+        if password != confirm_password:
+            return render(request, 'app/add_new_athlete.html', {
+                'error': 'Passwords do not match'
+            })
+
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT * FROM users WHERE email = %s", [email])
+            existing_user = cursor.fetchone()
+            if existing_user:
+                return render(request, 'app/add_new_athlete.html', {
+                    'error': 'User with this email already exists'
+                })
+
+            cursor.execute("""
+                INSERT INTO users (first_name, last_name, dob, gender, email, password_hash, phone, role, team_id)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, 'Athlete', %s)
+            """, [first_name, last_name, dob, gender, email, password, phone, team_id])
+            
+        return redirect('team_management')
+
+    return render(request, 'app/add_new_athlete.html', {
+        'user_role': request.session.get('user_role'),
+        'user_name': request.session.get('user_first_name'),
+        'user_lname': request.session.get('user_last_name')
+    })
+
+
+
+
+
 
