@@ -319,3 +319,58 @@ def training_log_view(request):
         'form': form,
         'logs': logs
     })
+
+def meet_list_view(request):
+    user_id = request.session.get('user_id')
+    if not user_id:
+        return redirect('login')
+
+    with connection.cursor() as cursor:
+        cursor.execute("""
+            SELECT * FROM meet
+        """)
+        columns = [col[0] for col in cursor.description]
+        meets = [dict(zip(columns, row)) for row in cursor.fetchall()]
+    return render(request, 'app/meet_list.html', {
+        'meets': meets
+    })
+
+def meet_details_view(request, meet_id):
+    with connection.cursor() as cursor:
+        cursor.execute("""
+            SELECT meet_name, meet_date, location, venue
+            FROM meet
+            WHERE meet_id = %s
+        """, [meet_id])
+        meet_info = cursor.fetchone()
+
+        if not meet_info:
+            return render(request, 'app/meet_detail.html', {
+                'error': 'Meet not found'
+            })
+
+        meet_name, meet_date, location, venue = meet_info
+
+        cursor.execute("""
+            SELECT e.event_name, r.result, r.place, w.temp_f, w.wind_mph, w.conditions, u.first_name, u.last_name
+            FROM event e
+            JOIN raceresult r ON e.event_id = r.event_id
+            JOIN weatherconditions w ON r.weather_id = w.weather_id
+            JOIN users u ON r.athlete_id = u.user_id
+            WHERE e.meet_id = %s
+            ORDER BY e.event_name
+        """, [meet_id])
+        columns = [col[0] for col in cursor.description]
+        results = [dict(zip(columns, row)) for row in cursor.fetchall()]
+        if not results:
+            return render(request, 'app/meet_detail.html', {
+                'error': 'No results found for this meet'
+            })
+    return render(request, 'app/meet_detail.html', {
+        'meet_name': meet_name,
+        'meet_date': meet_date,
+        'location': location,
+        'venue': venue,
+        'results': results
+    })
+
