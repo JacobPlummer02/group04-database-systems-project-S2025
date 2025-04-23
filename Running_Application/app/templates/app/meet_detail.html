@@ -1,26 +1,48 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 {% block content %}
-<h2>{{ meet.name }} — {{ meet.date }}</h2>
 
-<table>
-  <thead>
-    <tr>
-      <th>Athlete</th>
-      <th>Event</th>
-      <th>Result</th>
-      <th>Place</th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for result in race_results %}
-    <tr>
-      <td>{{ result.user.email }}</td>
-      <td>{{ result.event_name }}</td>
-      <td>{{ result.result }}</td>
-      <td>{{ result.place }}</td>
-    </tr>
-    {% endfor %}
-  </tbody>
-</table>
-<a href="{% url 'meet_list' %}">← Back to Meet List</a>
+<div class="header">
+    <h1>{{ meet_name }}</h1>
+    <p><strong>Date:</strong> {{ meet_date }}</p>
+    <p><strong>Location:</strong> {{ location }}</p>
+    <p><strong>Venue:</strong> {{ venue }}</p>
+</div>
+
+<div class="content-wrapper">
+    <h3>Compiled Results</h3>
+
+    {% if error %}
+        <p>{{ error }}</p>
+    {% elif results %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Event</th>
+                    <th>Athlete</th>
+                    <th>Result</th>
+                    <th>Place</th>
+                    <th>Temp (°F)</th>
+                    <th>Wind (mph)</th>
+                    <th>Conditions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in results %}
+                <tr>
+                    <td>{{ r.event_name }}</td>
+                    <td>{{ r.first_name }} {{ r.last_name }}</td>
+                    <td>{{ r.result }}</td>
+                    <td>{{ r.place }}</td>
+                    <td>{{ r.temp_f }}</td>
+                    <td>{{ r.wind_mph }}</td>
+                    <td>{{ r.conditions }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No results available.</p>
+    {% endif %}
+</div>
+
 {% endblock %}
