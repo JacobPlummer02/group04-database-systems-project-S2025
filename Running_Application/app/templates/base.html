@@ -22,16 +22,17 @@
       </div>
       <nav class="nav-bar">
         <ul>
+          <li><a href="{% url 'dashboard' %}">Dashboard</a></li>
           <li><a href="{% url 'race_results' %}">Race Results</a></li>
           {% if user_role == 'Coach' %}
             <li><a href="{% url 'team_management' %}">Team Management</a></li>
-            <li><a href="{% url 'training_log' %}">Workout Plans</a></li>
-        {% endif %}
-          {% if user_role == 'Athlete' %}
-            <li><a href="{% url 'my_team' %}">My Team</a></li>
-            <li><a href="{% url 'training_log' %}">My Workouts</a></li>
+            <li><a href="{% url 'training_log' %}">Workouts</a></li>
           {% endif %}
-          <li><a href="#">Meets</a></li>
+          {% if user_role == 'Athlete' %}
+            <li><a href="{% url 'training_log' %}">My Logs</a></li>  
+            <li><a href="{% url 'my_team' %}">My Team</a></li>
+          {% endif %}
+          <li><a href="{% url 'meet_list' %}">Meets</a></li>
         </ul>
       </nav>
       <a href="{% url 'login' %}" class="logout">Logout</a>

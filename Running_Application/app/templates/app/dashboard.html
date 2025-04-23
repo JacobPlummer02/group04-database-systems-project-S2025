@@ -40,8 +40,8 @@
     
     {% if user_role == 'Athlete' %}
     <div class="dashboard-item">
-    <a href="#"><i data-lucide="check-square"></i>My Workouts</a>
-    <p>View your assigned workout plans</p>
+    <a href="{% url 'training_log' %}"><i data-lucide="check-square"></i>My Logs</a>
+    <p>View and edit your training logs</p>
     </div>
     <div class="dashboard-item">
     <a href="{% url 'my_team' %}"><i data-lucide="users"></i>My Team</a>

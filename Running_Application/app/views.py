@@ -281,7 +281,10 @@ def my_team_view(request):
         'user_email': request.session.get('user_email'),
         'team_members': team_members,
         'team_name': team_name,
-        'coach_info': coach_info
+        'coach_info': coach_info,
+        'user_role': request.session.get('user_role'),
+        'user_name': request.session.get('user_first_name'),
+        'user_lname': request.session.get('user_last_name'),
     })
 
 def training_log_view(request):
@@ -317,7 +320,10 @@ def training_log_view(request):
         logs = [dict(zip(columns, row)) for row in cursor.fetchall()]
     return render(request, 'app/training_log.html', {
         'form': form,
-        'logs': logs
+        'logs': logs,
+        'user_role': request.session.get('user_role'),
+        'user_name': request.session.get('user_first_name'),
+        'user_lname': request.session.get('user_last_name')
     })
 
 def meet_list_view(request):
