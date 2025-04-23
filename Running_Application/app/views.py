@@ -494,10 +494,11 @@ def manage_workouts_view(request):
 
     with connection.cursor() as cursor:
         cursor.execute("""
-            SELECT log_id, date, workout_type, duration, distance_miles
-            FROM traininglog
-            WHERE athlete_id IN (SELECT user_id FROM users WHERE team_id = %s)
-            ORDER BY date DESC
+            SELECT t.athlete_id, u.first_name, u.last_name, t.log_id, t.date, t.workout_type, t.duration, t.distance_miles
+            FROM traininglog t
+            JOIN users u ON t.athlete_id = u.user_id
+            WHERE u.team_id = %s
+            ORDER BY t.date DESC
         """, [team_id])
         columns = [col[0] for col in cursor.description]
         workouts = [dict(zip(columns, row)) for row in cursor.fetchall()]
@@ -505,6 +506,7 @@ def manage_workouts_view(request):
     return render(request, 'app/manage_workouts.html', {
         'athletes': athletes,
         'workouts': workouts,
+        'form': form,
         'user_role': user_role,
         'user_name': request.session.get('user_first_name'),
         'user_lname': request.session.get('user_last_name')

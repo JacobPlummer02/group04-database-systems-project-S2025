@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% block content %}
-<<div class="form-container">
-  <h2>Manage Workout Plans for Athletes</h2>
+<div class="form-container">
+  <h2>Create a Workout</h2>
 
   {% if error %}
     <p class="error">{{ error }}</p>
@@ -11,18 +11,23 @@
     {% csrf_token %}
 
     <label for="athlete_id">Select Athlete:</label>
-    <select name="athlete_id" required>
+    <select name="athlete_id" id="athlete-select" required>
       <option value="">-- Choose Athlete --</option>
       {% for athlete in athletes %}
         <option value="{{ athlete.0 }}">{{ athlete.1 }} {{ athlete.2 }}</option>
       {% endfor %}
     </select>
 
-    {{ form.as_p }}
+    <input type="hidden" name="athlete_id" id="hidden-athlete-id">
 
-    <button type="submit">Add Workout</button>
+    <div id="log-form" style="display: none; border: 1px solid red; padding: 10px;">
+        <table>
+            {{ form.as_table }}
+        </table>
+        <button type="submit">Add Workout</button>
+    </div>
   </form>
-</div>>
+</div>
 
 <div class="workout-list">
   <h3>Workout Plans</h3>
@@ -40,7 +45,7 @@
       <tbody>
         {% for workout in workouts %}
           <tr>
-            <td>{{ workout.athlete.first_name }} {{ workout.athlete.last_name }}</td>
+            <td>{{ workout.first_name }} {{ workout.last_name }}</td>
             <td>{{ workout.date }}</td>
             <td>{{ workout.workout_type }}</td>
             <td>{{ workout.duration }}</td>
@@ -52,5 +57,19 @@
   {% else %}
     <p>No workouts found.</p>
   {% endif %}
-{% endblock %}
 
+
+<script>
+  document.getElementById('athlete-select').addEventListener('change', function () {
+    const logForm = document.getElementById('log-form');
+    const hiddenInput = document.getElementById('hidden-athlete-id');
+    if (this.value) {
+      logForm.style.display = 'block';
+    } else {
+      logForm.style.display = 'none';
+    }
+    hiddenInput.value = this.value;
+  });
+</script>
+
+{% endblock %}
