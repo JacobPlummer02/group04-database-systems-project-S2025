@@ -3,11 +3,11 @@
 <div class="profile-container">
   <div class="profile-title">Profile</div>
   <ul>
-    <li>First Name: {{ user.first_name }}</li>
-    <li>Last Name: {{ user.last_name }}</li>
-    <li>Email: {{ user.email }}</li>
-    <li>Date Of Birth: {{ user.date_of_birth }}</li>
-    <li>Role: {{ user.role }}</li>
+    <li>First Name: {{ first_name }}</li>
+    <li>Last Name: {{ last_name }}</li>
+    <li>Email: {{ email }}</li>
+    <li>Date Of Birth: {{ dob }}</li>
+    <li>Role: {{ role }}</li>
   </ul>
   <a href="{% url 'change_password' %}" class="change-password-link">Change Password</a>
 </div>

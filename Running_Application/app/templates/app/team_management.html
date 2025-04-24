@@ -26,8 +26,7 @@
         <form method="POST" action="{% url 'delete_athlete' %}" onsubmit="return confirm('Are you sure you want to delete this athlete?');" style="display:inline;">
           {% csrf_token %}
 
-          <input type="hidden" name="first_name" value="{{ athlete.first_name }}">
-          <input type="hidden" name="last_name" value="{{ athlete.last_name }}">
+          <input type="hidden" name="athlete_id" value="{{ athlete.user_id }}">
 
           <button class="btn btn-danger btn-sm shadow-lg hover:bg-red-600 transition-all duration-300 transform hover:scale-105" type="submit">Delete</button>
         </form>
