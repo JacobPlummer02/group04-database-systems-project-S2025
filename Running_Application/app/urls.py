@@ -33,4 +33,5 @@ urlpatterns = [
     path('logout/', views.logout_view, name='logout'),
     path('add_athlete/', views.add_athlete_view, name='add_athlete'),
     path('manage_workouts/', views.manage_workouts_view, name='manage_workouts'),
+    path('delete_athlete/', views.delete_athlete_view, name='delete_athlete'),
 ]
