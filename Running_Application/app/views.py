@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.db import connection
 from django.template.loader import get_template
 from django.contrib.auth.decorators import login_required
-from .forms import RaceResultForm
+from .forms import RaceResultForm, PasswordChangeForm
 from .forms import TrainingLogForm
 from datetime import datetime
 from django.views.decorators.csrf import csrf_exempt
@@ -511,6 +511,59 @@ def manage_workouts_view(request):
         'user_lname': request.session.get('user_last_name')
     })
 
+def profile_view(request):
+    user_id = request.session.get('user_id')
+    if not user_id:
+        return redirect('login')
+
+    with connection.cursor() as cursor:
+        cursor.execute("""
+            SELECT first_name, last_name, email, role, dob
+                       FROM users
+                       WHERE user_id = %s
+        """, [user_id])
+        user_info = cursor.fetchone()
+        if not user_info:
+            return render(request, 'app/profile.html', {
+                'error': 'User not found'
+            })
+        first_name, last_name, email, role, dob = user_info
+        dob = dob.strftime('%Y-%m-%d') if dob else None
+
+    return render(request, 'app/profile.html', {
+        'first_name': first_name,
+        'last_name': last_name,
+        'email': email,
+        'dob': dob,
+        'role': role,
+    })
+
+def change_password_view(request):
+    if request.method == 'POST':
+        form = PasswordChangeForm(request.POST)
+        if form.is_valid():
+            old_password = form.cleaned_data['old_password']
+            new_password = form.cleaned_data['new_password']
+            user_id = request.session.get('user_id')
+
+            # Verify old password
+            with connection.cursor() as cursor:
+                cursor.execute("SELECT password_hash FROM users WHERE user_id = %s", [user_id])
+                row = cursor.fetchone()
+                if not row or old_password != row[0]:
+                    form.add_error('old_password', 'Incorrect old password.')
+                    return render(request, 'app/change_password.html', {'form': form})
+
+            with connection.cursor() as cursor:
+                cursor.execute("""
+                    UPDATE users 
+                    SET password_hash = %s 
+                    WHERE user_id = %s
+                """, [new_password, user_id])
+            return redirect('profile')
+    else:
+        form = PasswordChangeForm()
+    return render(request, 'app/change_password.html', {'form': form})
 @csrf_exempt
 def delete_athlete_view(request):
     if request.method == 'POST':

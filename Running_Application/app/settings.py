@@ -85,7 +85,8 @@ DATABASES = {
         'USER': os.getenv('USER_NAME'),
         'PASSWORD': os.getenv('PASSWORD'),
         'HOST': os.getenv('HOST_NAME'),
-        'PORT': '5432'
+        'PORT': '5432',
+        'CONN_MAX_AGE': 60  # Keep the connection open for 10 minutes
     }
 }
 
