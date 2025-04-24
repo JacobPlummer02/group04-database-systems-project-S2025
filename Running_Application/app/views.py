@@ -36,7 +36,7 @@ def logout_view(request):
 def create_new_user_view(request):
     with connection.cursor() as cursor:
         cursor.execute("SELECT team_id, team_name FROM team")
-        teams = cursor.fetchall()  # (id, name)
+        teams = cursor.fetchall()
 
     if request.method == 'POST':
         first_name = request.POST.get('first_name')
@@ -147,9 +147,9 @@ def add_race_result_view(request):
         cursor.execute("SELECT e.event_id, e.event_name, e.meet_id, m.meet_name " \
                         "FROM event as e JOIN meet as m " \
                         "ON e.meet_id = m.meet_id")
-        events = cursor.fetchall() # (id, name, meet_id, meet_name)
+        events = cursor.fetchall()
         cursor.execute("SELECT weather_id, temp_f, wind_mph, conditions FROM weatherconditions")
-        weather = cursor.fetchall() # (id, temp_f, wind_mph, conditions)
+        weather = cursor.fetchall()
 
     form = RaceResultForm(request.POST if request.method == 'POST' else None)
     form.fields['event_id'].choices = [
@@ -231,7 +231,6 @@ def team_management_view(request):
                 'error': 'You are not assigned to a team'
             })
         
-        # get all members of that team
         cursor.execute("""
             SELECT last_name, first_name, gender
             FROM users
@@ -241,7 +240,6 @@ def team_management_view(request):
         columns = [col[0] for col in cursor.description]
         team_members = [dict(zip(columns, row)) for row in cursor.fetchall()]
 
-        # get team name
         cursor.execute("SELECT team_name FROM team WHERE team_id = %s", [team_id])
         team_name = cursor.fetchone()
         if not team_name:
