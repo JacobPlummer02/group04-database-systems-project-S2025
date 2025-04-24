@@ -33,4 +33,6 @@ urlpatterns = [
     path('logout/', views.logout_view, name='logout'),
     path('add_athlete/', views.add_athlete_view, name='add_athlete'),
     path('manage_workouts/', views.manage_workouts_view, name='manage_workouts'),
+    path('profile/', views.profile_view, name='profile'),
+    path('change_password/', views.change_password_view, name='change_password'),
 ]
