@@ -6,6 +6,7 @@
 <table>
   <thead>
     <tr>
+      <th>User ID</th>
       <th>Last Name</th>
       <th>First Name</th>
       <th>Gender</th>
@@ -18,18 +19,16 @@
 
     {% for athlete in team_members %}
     <tr>
+      <td>{{ athlete.user_id }}</td>
       <td>{{ athlete.last_name }}</td>
       <td>{{ athlete.first_name }}</td>
       <td>{{ athlete.gender }}</td>
       {% if user_role == 'Coach' %}
       <td>
-        <form method="POST" action="{% url 'delete_athlete' %}" onsubmit="return confirm('Are you sure you want to delete this athlete?');" style="display:inline;">
+        <form method="POST" action="{% url 'delete_athlete' %}" onsubmit="return confirm('Are you sure you want to remove this athlete from the team?');" style="display:inline;">
           {% csrf_token %}
-
-          <input type="hidden" name="first_name" value="{{ athlete.first_name }}">
-          <input type="hidden" name="last_name" value="{{ athlete.last_name }}">
-
-          <button class="btn btn-danger btn-sm shadow-lg hover:bg-red-600 transition-all duration-300 transform hover:scale-105" type="submit">Delete</button>
+          <input type="hidden" name="user_id" value="{{ athlete.user_id }}">
+          <button class="btn btn-danger btn-sm shadow-lg hover:bg-red-600 transition-all duration-300 transform hover:scale-105" type="submit">Remove</button>
         </form>
       </td>
       {% endif %}

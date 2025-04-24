@@ -233,7 +233,7 @@ def team_management_view(request):
             })
         
         cursor.execute("""
-            SELECT last_name, first_name, gender
+            SELECT user_id, first_name, last_name, gender
             FROM users
             WHERE team_id = %s AND role = %s
         """, [team_id, 'Athlete'])
@@ -255,6 +255,7 @@ def team_management_view(request):
         'user_email': request.session.get('user_email'),
         'team_members': team_members,
         'user_role': request.session.get('user_role'),
+        'user_id': request.session.get('user_id'),
         'user_name': request.session.get('user_first_name'),
         'user_lname': request.session.get('user_last_name'),
         'team_name': team_name
@@ -564,15 +565,18 @@ def change_password_view(request):
     else:
         form = PasswordChangeForm()
     return render(request, 'app/change_password.html', {'form': form})
+
 @csrf_exempt
 def delete_athlete_view(request):
     if request.method == 'POST':
         if request.session.get('user_role') != 'Coach':
             return redirect('team_management')
 
-        first_name = request.POST.get('first_name')
-        last_name = request.POST.get('last_name')
+        athlete_id = request.POST.get('user_id')
         coach_id = request.session.get('user_id')
+
+        if not athlete_id:
+            return redirect('team_management')
 
         with connection.cursor() as cursor:
             cursor.execute("SELECT team_id FROM users WHERE user_id = %s", [coach_id])
@@ -584,10 +588,9 @@ def delete_athlete_view(request):
                 cursor.execute("""
                     UPDATE users
                     SET team_id = NULL
-                    WHERE first_name = %s AND last_name = %s AND team_id = %s AND role = 'Athlete'
-                """, [first_name, last_name, team_id])
+                    WHERE user_id = %s AND team_id = %s AND role = 'Athlete'
+                """, [athlete_id, team_id])
 
         return redirect('team_management')
 
     return redirect('team_management')
-
