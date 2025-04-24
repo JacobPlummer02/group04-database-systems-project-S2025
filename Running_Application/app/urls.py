@@ -35,4 +35,5 @@ urlpatterns = [
     path('manage_workouts/', views.manage_workouts_view, name='manage_workouts'),
     path('profile/', views.profile_view, name='profile'),
     path('change_password/', views.change_password_view, name='change_password'),
+    path('delete_athlete/', views.delete_athlete_view, name='delete_athlete'),
 ]

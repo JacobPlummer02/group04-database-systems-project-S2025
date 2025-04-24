@@ -1,5 +1,112 @@
 {% extends "base.html" %}
 {% block content %}
+<style>
+  :root {
+    --primary: #3b82f6;
+    --primary-hover: #2563eb;
+    --accent: #f43f5e;
+    --accent-hover: #e11d48;
+    --bg: #f8fafc;
+    --card-bg: #ffffff;
+    --text-main: #1e293b;
+    --text-sub: #64748b;
+  }
+
+  .filter-form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-bottom: 30px;
+    background-color: var(--card-bg);
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+  }
+
+  .filter-form label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 4px;
+    color: var(--text-sub);
+  }
+
+  .filter-form div {
+    flex: 1;
+    min-width: 200px;
+  }
+
+  .filter-form input, .filter-form button {
+    width: 100%;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+  }
+
+  .filter-form button {
+    background-color: var(--primary);
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    margin-top: 26px;
+  }
+
+  .filter-form button:hover {
+    background-color: var(--primary-hover);
+  }
+
+  .add-link {
+    display: inline-block;
+    margin-top: 30px;
+    padding: 12px 24px;
+    background-color: var(--primary);
+    color: white;
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: background-color 0.2s ease;
+  }
+
+  .add-link:hover {
+    background-color: var(--primary-hover);
+  }
+
+  .no-results {
+    font-style: italic;
+    color: var(--text-sub);
+    margin-top: 20px;
+    text-align: center;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: var(--card-bg);
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+    overflow: hidden;
+  }
+
+  th, td {
+    padding: 16px 20px;
+    text-align: left;
+  }
+
+  th {
+    background-color: #f1f5f9;
+    font-weight: 600;
+    color: var(--text-sub);
+  }
+
+  tr:not(:last-child) td {
+    border-bottom: 1px solid #e2e8f0;
+  }
+
+  tr:hover {
+    background-color: #f9fafb;
+  }
+</style>
+
 <form method="get" class="filter-form">
   <div>
     <label for="event">Event Name</label>
@@ -42,12 +149,8 @@
   {% endfor %}
 </table>
 {% else %}
-<p class="no-results">No race results found.</p>
+<p class="no-results">No race results found</p>
 {% endif %}
 
 <a href="{% url 'add_race_result' %}" class="add-link">Add New Race Result</a>
-</body>
-
-</html>
-
 {% endblock %}

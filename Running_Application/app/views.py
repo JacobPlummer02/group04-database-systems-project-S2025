@@ -5,8 +5,7 @@ from django.contrib.auth.decorators import login_required
 from .forms import RaceResultForm, PasswordChangeForm
 from .forms import TrainingLogForm
 from datetime import datetime
-from django.contrib.auth.hashers import check_password
-
+from django.views.decorators.csrf import csrf_exempt
 
 
 def login_view(request):
@@ -512,7 +511,6 @@ def manage_workouts_view(request):
         'user_lname': request.session.get('user_last_name')
     })
 
-
 def profile_view(request):
     user_id = request.session.get('user_id')
     if not user_id:
@@ -566,3 +564,23 @@ def change_password_view(request):
     else:
         form = PasswordChangeForm()
     return render(request, 'app/change_password.html', {'form': form})
+@csrf_exempt
+def delete_athlete_view(request):
+    if request.method == 'POST':
+        if request.session.get('user_role') != 'Coach':
+            return redirect('team_management') 
+        first_name = request.POST.get('first_name')
+        last_name = request.POST.get('last_name')
+        coach_id = request.session.get('user_id')
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT team_id FROM users WHERE user_id = %s", [coach_id])
+            team_result = cursor.fetchone()
+            if team_result:
+                team_id = team_result[0]
+                cursor.execute("""
+                    DELETE FROM users
+                    WHERE first_name = %s AND last_name = %s AND team_id = %s AND role = 'Athlete'
+                               """, [first_name, last_name, team_id])
+
+        return redirect('team_management') 
+    return redirect('team_management')
