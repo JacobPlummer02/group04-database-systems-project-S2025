@@ -233,7 +233,7 @@ def team_management_view(request):
             })
         
         cursor.execute("""
-            SELECT last_name, first_name, gender
+            SELECT user_id, first_name, last_name, gender
             FROM users
             WHERE team_id = %s AND role = %s
         """, [team_id, 'Athlete'])
@@ -255,6 +255,7 @@ def team_management_view(request):
         'user_email': request.session.get('user_email'),
         'team_members': team_members,
         'user_role': request.session.get('user_role'),
+        'user_id': request.session.get('user_id'),
         'user_name': request.session.get('user_first_name'),
         'user_lname': request.session.get('user_last_name'),
         'team_name': team_name
@@ -564,6 +565,7 @@ def change_password_view(request):
     else:
         form = PasswordChangeForm()
     return render(request, 'app/change_password.html', {'form': form})
+
 @csrf_exempt
 def delete_athlete_view(request):
     if request.method == 'POST':
